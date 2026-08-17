@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+# robots.txt 는 도메인 루트에서만 읽힌다.
+# 도구가 별도 Pages 프로젝트라도 sitemap 은 여기에 모아 적는다.
+Sitemap: https://prelaps.com/sitemap-index.xml
+Sitemap: https://prelaps.com/mojibake/sitemap.xml
