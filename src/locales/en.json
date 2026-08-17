@@ -1,0 +1,25 @@
+{
+  "site.name": "prelaps",
+
+  "nav.home": "Home",
+  "nav.about": "About",
+
+  "ui.langLabel": "Language",
+
+  "home.title": "prelaps — free browser tools",
+  "home.description": "Free tools that run in your browser. No account needed, and nothing you type leaves your device.",
+  "home.heading": "Tools that run in your browser",
+  "home.intro": "New ones get added whenever I need them. All of them work without an account, entirely in your browser.",
+  "home.toolsHeading": "Tools",
+
+  "tools.mojibake.name": "Mojibake Fixer",
+  "tools.mojibake.desc": "Recover text that turned into garbled characters after being saved or opened with the wrong encoding — EUC-KR read as UTF-8, and other common mismatches.",
+
+  "about.title": "About prelaps",
+  "about.description": "Who builds prelaps and how your data is handled.",
+  "about.heading": "About",
+  "about.p1": "prelaps is a one-person side project. I build tools when I need them and put them here.",
+  "about.p2": "Every tool runs as a static page. Processing happens in your browser, and the text you paste never leaves your device. The site is funded by ads.",
+
+  "footer.rights": "All rights reserved."
+}

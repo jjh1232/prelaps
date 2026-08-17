@@ -1,0 +1,99 @@
+---
+import '../styles/global.css';
+import LanguageSwitcher from '../components/LanguageSwitcher.astro';
+import type { Locale } from '../i18n/config';
+import {
+  absoluteUrl,
+  hreflangLinks,
+  localizePath,
+  useTranslations,
+} from '../i18n/utils';
+
+interface Props {
+  /** 이 페이지의 언어. <html lang> 과 번역 조회에 함께 쓰인다. */
+  lang: Locale;
+  /** 언어를 뺀 경로. '' = 홈, '/about' = 소개. canonical/hreflang 계산의 기준. */
+  path?: string;
+  /** 언어마다 반드시 달라야 한다. 영어로 통일하면 중복 페이지로 판정된다. */
+  title: string;
+  description: string;
+}
+
+const { lang, path = '', title, description } = Astro.props;
+
+const t = useTranslations(lang);
+const canonical = absoluteUrl(localizePath(lang, path)); // canonical 은 항상 자기 자신
+const alternates = hreflangLinks(path);
+const year = new Date().getFullYear();
+
+const nav = [
+  { path: '', label: t('nav.home') },
+  { path: '/about', label: t('nav.about') },
+];
+---
+
+<!doctype html>
+<html lang={lang}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="generator" content={Astro.generator} />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <link rel="canonical" href={canonical} />
+    {
+      alternates.map((alt) => (
+        <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
+      ))
+    }
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={t('site.name')} />
+    <meta property="og:locale" content={lang} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+
+    <!--
+      애드센스: 승인 후 아래 주석을 풀고 ca-pub-XXXXXXXX 를 실제 퍼블리셔 ID 로 교체.
+      이 레이아웃을 쓰는 모든 페이지에 한 번에 적용된다. (docs §9)
+      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXX" crossorigin="anonymous"></script>
+    -->
+  </head>
+
+  <body>
+    <header class="site-header">
+      <div class="wrap bar">
+        <a class="brand" href={localizePath(lang, '')}>{t('site.name')}</a>
+        <nav class="site-nav">
+          {
+            nav.map((item) => (
+              <a
+                href={localizePath(lang, item.path)}
+                aria-current={item.path === path ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </nav>
+        <span class="spacer"></span>
+        <LanguageSwitcher lang={lang} path={path} />
+      </div>
+    </header>
+
+    <main class="wrap">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap">
+        &copy; {year} {t('site.name')}. {t('footer.rights')}
+      </div>
+    </footer>
+  </body>
+</html>

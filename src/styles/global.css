@@ -1,0 +1,198 @@
+/* 사이트 전역 스타일. Base.astro 에서 한 번만 import 하면 모든 페이지에 적용된다. */
+
+:root {
+  --bg: #ffffff;
+  --bg-soft: #f6f6f4;
+  --fg: #1b1b1a;
+  --fg-muted: #6b6b66;
+  --border: #e4e4df;
+  --accent: #2f6f4f;
+  --radius: 10px;
+  --maxw: 46rem;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #16171a;
+    --bg-soft: #1e2024;
+    --fg: #e9e9e6;
+    --fg-muted: #9a9a94;
+    --border: #2c2f34;
+    --accent: #7fc0a0;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Apple SD Gothic Neo',
+    'Noto Sans KR', 'Hiragino Sans', sans-serif;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 2px;
+}
+
+h1,
+h2 {
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.wrap {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 1.25rem;
+}
+
+/* --- 헤더 / 푸터 --- */
+
+.site-header,
+.site-footer {
+  border-color: var(--border);
+  border-style: solid;
+  border-width: 0;
+}
+
+.site-header {
+  border-bottom-width: 1px;
+}
+
+.site-footer {
+  border-top-width: 1px;
+  margin-top: 4rem;
+  padding: 1.5rem 0;
+  color: var(--fg-muted);
+  font-size: 0.85rem;
+}
+
+.bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.9rem 0;
+}
+
+.brand {
+  font-weight: 650;
+  color: var(--fg);
+  text-decoration: none;
+  letter-spacing: -0.02em;
+}
+
+.site-nav {
+  display: flex;
+  gap: 1rem;
+  font-size: 0.95rem;
+}
+
+.site-nav a {
+  color: var(--fg-muted);
+  text-decoration: none;
+}
+
+.site-nav a:hover,
+.site-nav a[aria-current='page'] {
+  color: var(--fg);
+}
+
+.spacer {
+  flex: 1;
+}
+
+/* --- 언어 전환 --- */
+
+.lang-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.85rem;
+}
+
+.lang-switch a {
+  color: var(--fg-muted);
+  text-decoration: none;
+  padding: 0.1rem 0.35rem;
+  border-radius: 6px;
+}
+
+.lang-switch a:hover {
+  background: var(--bg-soft);
+  color: var(--fg);
+}
+
+.lang-switch a[aria-current='true'] {
+  color: var(--fg);
+  font-weight: 600;
+}
+
+/* --- 본문 --- */
+
+main {
+  padding: 3rem 0 0;
+}
+
+.lede {
+  color: var(--fg-muted);
+  font-size: 1.05rem;
+}
+
+.section-title {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  color: var(--fg-muted);
+  margin: 3rem 0 1rem;
+}
+
+/* --- 도구 카드 --- */
+
+.card-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.card {
+  display: block;
+  padding: 1.1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+  text-decoration: none;
+  color: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.card:hover {
+  border-color: var(--accent);
+}
+
+.card h3 {
+  margin: 0 0 0.3rem;
+  font-size: 1.05rem;
+  color: var(--accent);
+}
+
+.card p {
+  margin: 0;
+  font-size: 0.92rem;
+  color: var(--fg-muted);
+}

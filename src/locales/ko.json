@@ -1,0 +1,25 @@
+{
+  "site.name": "prelaps",
+
+  "nav.home": "홈",
+  "nav.about": "소개",
+
+  "ui.langLabel": "언어",
+
+  "home.title": "prelaps — 무료 웹 도구 모음",
+  "home.description": "브라우저에서 바로 쓰는 무료 도구 모음. 가입이 필요 없고, 입력한 내용은 기기를 벗어나지 않습니다.",
+  "home.heading": "브라우저에서 바로 쓰는 도구들",
+  "home.intro": "필요할 때마다 하나씩 만들어 올립니다. 모두 가입 없이 브라우저 안에서 동작합니다.",
+  "home.toolsHeading": "도구",
+
+  "tools.mojibake.name": "한글 깨짐 복구기",
+  "tools.mojibake.desc": "인코딩이 어긋나 깨져버린 텍스트를 되살립니다. EUC-KR 로 저장된 글을 UTF-8 로 읽었을 때처럼 흔한 조합을 자동으로 되돌립니다.",
+
+  "about.title": "prelaps 소개",
+  "about.description": "누가 만드는지, 입력한 데이터는 어떻게 처리되는지 안내합니다.",
+  "about.heading": "소개",
+  "about.p1": "prelaps 는 혼자 만드는 개인 프로젝트입니다. 필요해서 만든 도구를 하나씩 올립니다.",
+  "about.p2": "모든 도구는 정적 페이지로 동작합니다. 처리는 브라우저 안에서 이루어지고, 입력한 텍스트는 기기를 벗어나지 않습니다. 운영은 광고로 합니다.",
+
+  "footer.rights": "All rights reserved."
+}

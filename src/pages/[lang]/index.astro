@@ -1,0 +1,36 @@
+---
+import Base from '../../layouts/Base.astro';
+import { TOOLS } from '../../data/tools';
+import type { Locale } from '../../i18n/config';
+import { localeStaticPaths, useTranslations } from '../../i18n/utils';
+
+// 이 한 줄이 /ko, /en, /ja 세 장의 정적 HTML 을 만든다.
+export const getStaticPaths = localeStaticPaths;
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+---
+
+<Base
+  lang={lang}
+  path=""
+  title={t('home.title')}
+  description={t('home.description')}
+>
+  <h1>{t('home.heading')}</h1>
+  <p class="lede">{t('home.intro')}</p>
+
+  <h2 class="section-title">{t('home.toolsHeading')}</h2>
+  <ul class="card-list">
+    {
+      TOOLS.map((tool) => (
+        <li>
+          <a class="card" href={tool.href(lang)}>
+            <h3>{t(tool.nameKey)}</h3>
+            <p>{t(tool.descKey)}</p>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+</Base>

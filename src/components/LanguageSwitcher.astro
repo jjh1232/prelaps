@@ -1,0 +1,29 @@
+---
+import { LOCALES, LOCALE_LABELS, type Locale } from '../i18n/config';
+import { localizePath, useTranslations } from '../i18n/utils';
+
+interface Props {
+  /** 현재 페이지의 언어 */
+  lang: Locale;
+  /** 언어를 뺀 현재 경로. '' 이면 홈, '/about' 이면 소개 페이지 */
+  path?: string;
+}
+
+const { lang, path = '' } = Astro.props;
+const t = useTranslations(lang);
+---
+
+<nav class="lang-switch" aria-label={t('ui.langLabel')}>
+  {
+    LOCALES.map((locale) => (
+      <a
+        href={localizePath(locale, path)}
+        hreflang={locale}
+        lang={locale}
+        aria-current={locale === lang ? 'true' : undefined}
+      >
+        {LOCALE_LABELS[locale]}
+      </a>
+    ))
+  }
+</nav>

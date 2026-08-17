@@ -1,0 +1,25 @@
+{
+  "site.name": "prelaps",
+
+  "nav.home": "ホーム",
+  "nav.about": "このサイトについて",
+
+  "ui.langLabel": "言語",
+
+  "home.title": "prelaps — 無料のブラウザツール",
+  "home.description": "ブラウザだけで動く無料ツール集。登録は不要で、入力した内容が端末の外に出ることはありません。",
+  "home.heading": "ブラウザだけで動くツール",
+  "home.intro": "必要になったものから少しずつ追加しています。すべて登録不要、ブラウザ内だけで動作します。",
+  "home.toolsHeading": "ツール",
+
+  "tools.mojibake.name": "文字化け修復ツール",
+  "tools.mojibake.desc": "エンコーディングの食い違いで文字化けしたテキストを元に戻します。EUC-KR のテキストを UTF-8 として読んでしまった場合など、よくある組み合わせに対応します。",
+
+  "about.title": "prelaps について",
+  "about.description": "誰が作っているのか、入力したデータがどう扱われるのかについて。",
+  "about.heading": "このサイトについて",
+  "about.p1": "prelaps は個人で運営している小さなプロジェクトです。自分が必要になったツールをひとつずつ置いています。",
+  "about.p2": "各ツールは静的ページとして動作します。処理はブラウザ内で完結し、貼り付けたテキストが端末の外に出ることはありません。運営は広告によります。",
+
+  "footer.rights": "All rights reserved."
+}
