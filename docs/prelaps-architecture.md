@@ -82,11 +82,22 @@ export default {
     const path = url.pathname;
 
     for (const [prefix, host] of Object.entries(ROUTES)) {
-      if (path === prefix || path.startsWith(prefix + '/')) {
-        const target = new URL(url);
-        target.hostname = host;
-        return fetch(new Request(target, request));
+      // 접두사 뒤는 '/' 이거나 끝이어야 한다. 없으면 /mojibake-old 까지 삼킨다.
+      if (path !== prefix && !path.startsWith(prefix + '/')) continue;
+
+      // 끝 슬래시가 없으면 붙여서 되돌린다. /mojibake 상태에서는
+      // HTML 의 상대 링크가 루트 기준으로 풀려 전부 깨진다.
+      if (path === prefix) {
+        url.pathname = prefix + '/';
+        return Response.redirect(url.toString(), 301);
       }
+
+      // Pages 프로젝트는 자기 루트에 배포돼 있으므로 접두사를 떼고 넘긴다.
+      // prelaps.com/mojibake/en/ -> prelaps-mojibake.pages.dev/en/
+      const target = new URL(url);
+      target.hostname = host;
+      target.pathname = path.slice(prefix.length);
+      return fetch(new Request(target, request));
     }
 
     // ROUTES 에 없는 경로는 전부 홈으로
