@@ -7,9 +7,16 @@ export default defineConfig({
   // canonical / hreflang / sitemap 의 절대 URL 기준. 반드시 실제 도메인이어야 한다.
   site: 'https://prelaps.com',
 
-  // Cloudflare Pages 는 끝의 슬래시를 떼는 쪽으로 정규화한다.
-  // canonical 이 /ko 인데 실제 주소가 /ko/ 가 되는 불일치를 막는다.
+  // 주소는 /ko 형태로 통일한다. canonical / hreflang / sitemap 이 모두 이 형태다.
   trailingSlash: 'never',
+
+  // 페이지를 폴더(dist/ko/index.html)가 아니라 파일(dist/ko.html)로 뽑는다.
+  //
+  // 폴더로 뽑으면 Cloudflare Pages 가 /ko 를 /ko/ 로 308 리다이렉트한다.
+  // (끝 슬래시를 떼는 게 아니라 붙이는 쪽으로 정규화한다 — 실측으로 확인)
+  // 그러면 canonical 이 가리키는 /ko 가 정작 리다이렉트되는 주소가 되어
+  // 색인 신호가 흐려지고, 모든 요청에 리다이렉트가 한 번씩 붙는다.
+  build: { format: 'file' },
 
   // 루트로 들어오면 기본 언어 페이지로 보낸다.
   // 개발 서버와 빌드 결과물 양쪽에 적용된다.
