@@ -376,15 +376,69 @@ public/                         ← 정적 파일
 
 ## 7. 도구 추가 체크리스트
 
+> 도메인 공통 규칙의 짧은 요약본이 `D:\SUBsite\CLAUDE.md` 에 있다.
+> 세 저장소의 공통 상위 폴더라 어느 저장소에서 작업하든 Claude 가 자동으로 읽는다.
+> **이 문서가 원본이고 그쪽은 요약이다.** 규칙을 바꾸면 여기를 먼저 고칠 것.
+
+
+`prelaps.com/<도구>` 를 새로 붙일 때. mojibake 이전(2026-08-18)에서 얻은 것을 반영했다.
+대부분 복사이고, 새로 판단할 일은 거의 없다.
+
+### 새 저장소에서
+
 ```
-□ Pages 프로젝트 생성 및 배포 (커스텀 도메인 X)
-□ Worker ROUTES 에 한 줄 추가 → wrangler deploy
-□ 허브 도구 목록에 항목 추가 (locales/*.json 에 설명 문구도)
-□ privacy "3. 서비스별 안내" 에 블록 추가 (id 부여)
-□ 도구 페이지 푸터에 /privacy#도구명 링크
-□ 도구 페이지 <head> 에 canonical + hreflang + 애드센스 스크립트
-□ sitemap.xml 에 URL 추가 (언어별 전부)
+□ 저장소 생성. 스택은 자유 — 도구마다 독립이다
+□ wrangler.jsonc
+    main    ./src/index.js
+    routes  prelaps.com/<도구>/*   (zone_name: prelaps.com)
+    assets  directory / binding ASSETS / run_worker_first: true
+            html_handling / not_found_handling 을 명시할 것
+□ src/index.js  — breakkorean 것을 복사해 PREFIX 만 교체
+    · URL 의 /<도구> 접두사를 떼어 자산 루트에 맞춘다
+    · 자산 층 리다이렉트의 Location 에 접두사를 다시 붙인다  ← 빠뜨리면 도구 밖으로 튕긴다
+    · 접두사로 시작하지 않는 경로는 손대지 않는다            ← 가정이 깨지는 입구를 막는다
+□ 404.html  — noindex, canonical 없음
+□ canonical · hreflang · og:url · sitemap 을 https://prelaps.com/<도구>/... 절대 URL 로
+□ x-default 는 영어  (도메인 공통 규칙. §5 참고)
+□ 내부 링크는 전부 상대 경로. 절대 경로(/style.css)는 루트로 풀려 깨진다
+□ 푸터에서 허브 정책으로 앵커 링크  →  /{lang}/privacy#<도구>
+□ 링크·hreflang 전수 검사 스크립트  (breakkorean/test/links.js 참고)
+□ CLAUDE.md + docs/배포.md
 ```
+
+### 허브(prelaps-home)에서
+
+```
+□ public/robots.txt 에 한 줄       Sitemap: https://prelaps.com/<도구>/sitemap.xml
+□ src/data/tools.ts 에 항목 하나 + locales/*.json 에 이름·설명 (3언어)
+□ {lang}/privacy 의 "3. 서비스별 안내" 에 블록 추가 (id=<도구>)
+    수집 항목 / 목적 / 보관 기간 / 제3자 제공 — 없으면 "없음"
+□ 빌드 후 수동 배포        npx wrangler pages deploy dist --project-name prelaps-home
+```
+
+### 라우터(prelaps-router)에서
+
+```
+□ TOOLS 배열에 '/​<도구>' 한 줄  — 끝 슬래시 없는 진입을 /<도구>/ 로 301 한다
+□ npx wrangler deploy
+```
+
+### 검색엔진
+
+```
+□ 아무것도 안 한다
+```
+
+하위 경로는 전부 같은 사이트라 재등록이 없다. 사이트맵만 허브 `robots.txt` 에 등록하면 된다.
+**서브도메인이었으면 도구마다 소유확인부터 다시 해야 했다** — 하위 경로로 옮긴 이득이 여기서 나온다.
+
+### 배포·검증
+
+순서는 **받는 쪽 먼저**다. 도구를 배포해 `/<도구>/` 가 200 인 것을 확인한 뒤에
+라우터와 허브를 올린다. 거꾸로 하면 그 사이 갈 곳 없는 주소가 생긴다.
+
+검증은 도구 저장소의 `docs/배포.md` 표를 그대로 쓴다. **`/ko` 도 같이 찍을 것** —
+라우트가 잘못 겹치면 허브가 먼저 죽는다.
 
 ---
 
