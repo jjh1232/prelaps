@@ -17,13 +17,19 @@ interface Props {
   /** 언어마다 반드시 달라야 한다. 영어로 통일하면 중복 페이지로 판정된다. */
   title: string;
   description: string;
+  /**
+   * 색인 대상이 아닌 페이지(404 등)는 true.
+   * canonical / hreflang 을 아예 내보내지 않는다 — 실재하지 않는 주소를
+   * 자기 자신이라고 선언하면 오히려 잘못된 신호가 된다.
+   */
+  noindex?: boolean;
 }
 
-const { lang, path = '', title, description } = Astro.props;
+const { lang, path = '', title, description, noindex = false } = Astro.props;
 
 const t = useTranslations(lang);
 const canonical = absoluteUrl(localizePath(lang, path)); // canonical 은 항상 자기 자신
-const alternates = hreflangLinks(path);
+const alternates = noindex ? [] : hreflangLinks(path);
 const year = new Date().getFullYear();
 
 const nav = [
@@ -44,7 +50,8 @@ const nav = [
     <title>{title}</title>
     <meta name="description" content={description} />
 
-    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+    {!noindex && <link rel="canonical" href={canonical} />}
     {
       alternates.map((alt) => (
         <link rel="alternate" hreflang={alt.hreflang} href={alt.href} />
@@ -56,7 +63,7 @@ const nav = [
     <meta property="og:locale" content={lang} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:url" content={canonical} />
+    {!noindex && <meta property="og:url" content={canonical} />}
 
     <!--
       애드센스: 승인 후 아래 주석을 풀고 ca-pub-XXXXXXXX 를 실제 퍼블리셔 ID 로 교체.

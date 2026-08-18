@@ -64,16 +64,29 @@ Cloudflare Worker: prelaps-router
 
 ## 3. Worker 코드
 
-`prelaps-router/src/index.js`
+`prelaps-router/src/index.js` (전문)
 
 ```js
+/**
+ * prelaps.com 의 단일 진입점.
+ *
+ * 경로 앞부분을 보고 해당 Cloudflare Pages 프로젝트로 프록시한다.
+ * 각 Pages 프로젝트에는 커스텀 도메인을 붙이지 않는다 —
+ * 붙이면 같은 콘텐츠가 .pages.dev 와 prelaps.com 두 주소로 열려 중복 콘텐츠가 된다.
+ * (docs/prelaps-architecture.md §2)
+ */
+
+/**
+ * 도구를 추가할 때 여기 한 줄.
+ * 키 = prelaps.com 에서의 URL 접두사, 값 = 그 프로젝트의 .pages.dev 호스트.
+ */
 const ROUTES = {
   '/mojibake': 'prelaps-mojibake.pages.dev',
-  // 도구 추가 시 여기 한 줄씩
   // '/game': 'prelaps-game.pages.dev',
   // '/blog': 'prelaps-blog.pages.dev',
 };
 
+/** ROUTES 에 안 걸리는 경로는 전부 허브로. 허브가 자기 404 를 돌려준다. */
 const HOME = 'prelaps-home.pages.dev';
 
 export default {
@@ -82,30 +95,90 @@ export default {
     const path = url.pathname;
 
     for (const [prefix, host] of Object.entries(ROUTES)) {
-      // 접두사 뒤는 '/' 이거나 끝이어야 한다. 없으면 /mojibake-old 까지 삼킨다.
+      // 접두사 뒤는 경로 구분자이거나 끝이어야 한다.
+      // 이 검사가 없으면 /mojibake-old 같은 남의 경로까지 삼킨다.
       if (path !== prefix && !path.startsWith(prefix + '/')) continue;
 
-      // 끝 슬래시가 없으면 붙여서 되돌린다. /mojibake 상태에서는
-      // HTML 의 상대 링크가 루트 기준으로 풀려 전부 깨진다.
+      // 끝 슬래시가 없으면 붙여서 되돌린다.
+      // /mojibake 상태에서는 HTML 의 상대 링크(content/about.html)가
+      // 루트 기준으로 풀려 /content/about.html 이 되어 전부 깨진다.
       if (path === prefix) {
         url.pathname = prefix + '/';
         return Response.redirect(url.toString(), 301);
       }
 
-      // Pages 프로젝트는 자기 루트에 배포돼 있으므로 접두사를 떼고 넘긴다.
+      // Pages 프로젝트는 자기 루트에 배포돼 있다.
       // prelaps.com/mojibake/en/ -> prelaps-mojibake.pages.dev/en/
+      // 접두사를 떼지 않으면 Pages 쪽에서 전부 404 가 난다.
       const target = new URL(url);
       target.hostname = host;
       target.pathname = path.slice(prefix.length);
       return fetch(new Request(target, request));
     }
 
-    // ROUTES 에 없는 경로는 전부 홈으로
-    const target = new URL(url);
-    target.hostname = HOME;
-    return fetch(new Request(target, request));
+    return serveHome(url, request);
   },
 };
+
+/**
+ * 허브(prelaps-home)로 넘긴다.
+ *
+ * 허브의 주소는 끝 슬래시 없는 /ko, /ko/about 한 형태뿐이다.
+ * canonical / hreflang / sitemap / 내부 링크가 전부 이 형태로 나간다.
+ *
+ * 문제는 Cloudflare Pages 가 확장자 없는 경로를 무조건 끝 슬래시로 308 시킨다는 것.
+ * (/ko -> /ko/, /ko/about -> /ko/about/ — 실측. dist 를 파일 형식으로 뽑아
+ *  ko.html 이 실제로 있어도 마찬가지다. Pages 자체 정규화라 빌드로는 못 막는다.)
+ * 그대로 두면 우리가 색인시키려는 주소가 전부 리다이렉트되는 주소가 된다.
+ *
+ * 그래서 여기서 두 방향으로 정리한다.
+ *  - 들어온 주소가 정식 형태가 아니면 정식 형태로 301.
+ *  - 업스트림에는 .html 을 직접 집어서 요청한다. 확장자가 붙으면 Pages 가
+ *    끝 슬래시를 붙이지 않으므로 308 없이 바로 200 이 온다.
+ * 결과적으로 주소창은 /ko 인 채로 리다이렉트 0회.
+ */
+function serveHome(url, request) {
+  const path = url.pathname;
+
+  const canonical = canonicalPath(path);
+  if (canonical !== path) {
+    url.pathname = canonical;
+    return Response.redirect(url.toString(), 301);
+  }
+
+  const target = new URL(url);
+  target.hostname = HOME;
+
+  // 확장자 없는 경로만 .html 로 바꿔 집는다.
+  // /robots.txt, /sitemap-0.xml, /_astro/*.css 같은 실제 파일은 그대로 통과.
+  // 루트(/)는 Pages 의 _redirects 가 301 로 /ko 에 넘겨준다.
+  if (path !== '/' && !hasExtension(path)) {
+    target.pathname = path + '.html';
+  }
+
+  return fetch(new Request(target, request));
+}
+
+/** 허브 경로의 정식 형태. 이미 정식이면 받은 값을 그대로 돌려준다. */
+function canonicalPath(path) {
+  if (path === '/') return path;
+
+  // /ko.html, /ko/about.html 로 직접 들어온 경우. 확장자 없는 쪽이 정식이다.
+  let p = path.endsWith('.html') ? path.slice(0, -'.html'.length) : path;
+
+  // /index 는 홈이지 별도 주소가 아니다. (/index.html 도 여기로 모인다)
+  if (p === '/index') return '/';
+
+  // 끝 슬래시를 뗀다. //ko// 처럼 연속으로 붙어 온 경우까지 한 번에.
+  p = p.replace(/\/+$/, '');
+
+  return p === '' ? '/' : p;
+}
+
+/** 마지막 경로 조각에 점이 있으면 파일로 본다. */
+function hasExtension(path) {
+  return path.slice(path.lastIndexOf('/') + 1).includes('.');
+}
 ```
 
 `prelaps-router/wrangler.toml`
@@ -113,12 +186,49 @@ export default {
 ```toml
 name = "prelaps-router"
 main = "src/index.js"
-compatibility_date = "2026-01-01"
+compatibility_date = "2026-08-17"
 
+# workers.dev 하위 주소로도 열리면 같은 콘텐츠가 두 곳에서 접근된다.
+workers_dev = false
+
+# prelaps.com 으로 들어오는 모든 요청을 이 Worker 가 받는다.
+# 서브도메인(mojibake.prelaps.com)은 이 패턴에 걸리지 않는다 — 별개 호스트다.
+# 구 서브도메인의 301 은 Cloudflare Rules > Redirect Rules 가 담당한다.
 routes = [
   { pattern = "prelaps.com/*", zone_name = "prelaps.com" }
 ]
 ```
+
+### Cloudflare Pages 의 끝 슬래시 정규화 (2026-08-18 실측)
+
+Pages 는 **확장자 없는 경로를 무조건 끝 슬래시 쪽으로 308** 시킨다.
+
+```
+prelaps-home.pages.dev/ko            -> 308  Location: /ko/
+prelaps-home.pages.dev/ko/about      -> 308  Location: /ko/about/
+prelaps-home.pages.dev/ko.html       -> 200
+prelaps-home.pages.dev/ko/about.html -> 200
+```
+
+`/ko/about` 은 옆에 `about/` 디렉터리가 아예 없는데도 308 이 난다. 즉
+"폴더로 뽑아서 그렇다"가 아니라 Pages 자체의 정규화다. `build.format: 'file'` 로
+`ko.html` 을 실제로 만들어 놔도 막히지 않는다.
+
+그대로 두면 canonical / hreflang / sitemap / 내부 링크가 가리키는 주소 전부가
+리다이렉트되는 주소가 된다. 그래서 Worker 의 `serveHome()` 이 정리한다.
+
+- 들어온 주소가 정식 형태(`/ko`)가 아니면 → 301 로 정식 형태에 보낸다
+- 업스트림에는 `.html` 을 붙여 요청한다 → 확장자가 있으면 308 이 안 붙어 바로 200
+
+주소창은 `/ko` 인 채로 리다이렉트 0회가 된다.
+`astro.config.mjs` 의 `trailingSlash: 'never'` / `build.format: 'file'` 은 이 구조의 전제이므로
+둘 다 그대로 유지해야 한다.
+
+### 404
+
+Pages 는 `404.html` 이 있으면 그것을 status 404 로 돌려주고, **없으면 `index.html` 을
+status 200 으로** 돌려준다(SPA 폴백). 허브에 404 페이지가 없던 동안 존재하지 않는 모든
+주소가 soft 404 였다. `src/pages/404.astro` 가 그 구멍을 막는다 — 이 파일은 지우지 말 것.
 
 ---
 
@@ -325,6 +435,7 @@ public/                         ← 정적 파일
 - Vite/React 도구 추가 시 `base: '/도구명/'` 설정 필요 (Next.js 는 `basePath`)
 - Astro 는 기본이 정적. 인터랙션 필요한 컴포넌트에만 `client:load` / `client:visible` 부여.
   각 island 는 상태를 공유하지 않으므로, 상태 공유가 필요하면 하나의 부모 컴포넌트로 묶어서 지시어를 부여할 것.
+- 각 Pages 프로젝트에 `404.html` 이 반드시 있어야 한다. 없으면 `index.html` 이 200 으로 나가 soft 404 가 된다 (§3)
 - 새 도구가 데이터를 수집하는데 privacy 업데이트를 누락하면 애드센스 정책 위반 → 체크리스트 준수
 
 ---

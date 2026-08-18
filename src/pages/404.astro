@@ -1,0 +1,31 @@
+---
+import Base from '../layouts/Base.astro';
+import { DEFAULT_LOCALE } from '../i18n/config';
+import { localizePath, useTranslations } from '../i18n/utils';
+
+/**
+ * 없는 주소 전부가 여기로 온다.
+ *
+ * Astro 는 이 파일을 dist/404.html 로 뽑고, Cloudflare Pages 는
+ * 매치되는 자산이 없을 때 이 파일을 status 404 로 돌려준다.
+ * 이 파일이 없으면 Pages 가 대신 index.html 을 status 200 으로 돌려줘서
+ * 존재하지 않는 모든 주소가 soft 404 가 된다. 지우지 말 것.
+ * (docs/prelaps-architecture.md §3)
+ *
+ * 404 는 특정 언어의 페이지가 아니라 주소 하나뿐이므로 기본 언어로 낸다.
+ * 색인 대상이 아니라서 canonical / hreflang 은 내보내지 않는다.
+ */
+const lang = DEFAULT_LOCALE;
+const t = useTranslations(lang);
+---
+
+<Base
+  lang={lang}
+  title={t('notFound.title')}
+  description={t('notFound.body')}
+  noindex
+>
+  <h1>{t('notFound.heading')}</h1>
+  <p class="lede">{t('notFound.body')}</p>
+  <p><a href={localizePath(lang, '')}>{t('notFound.home')}</a></p>
+</Base>

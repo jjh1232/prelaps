@@ -21,5 +21,10 @@
   "about.p1": "prelaps is a one-person side project. I build tools when I need them and put them here.",
   "about.p2": "Every tool runs as a static page. Processing happens in your browser, and the text you paste never leaves your device. The site is funded by ads.",
 
+  "notFound.title": "404 — page not found | prelaps",
+  "notFound.heading": "Page not found",
+  "notFound.body": "The address you followed does not exist here. It may have moved, or the link may be mistyped.",
+  "notFound.home": "Go to the home page",
+
   "footer.rights": "All rights reserved."
 }

@@ -21,5 +21,10 @@
   "about.p1": "prelaps 는 혼자 만드는 개인 프로젝트입니다. 필요해서 만든 도구를 하나씩 올립니다.",
   "about.p2": "모든 도구는 정적 페이지로 동작합니다. 처리는 브라우저 안에서 이루어지고, 입력한 텍스트는 기기를 벗어나지 않습니다. 운영은 광고로 합니다.",
 
+  "notFound.title": "404 — 페이지를 찾을 수 없습니다 | prelaps",
+  "notFound.heading": "페이지를 찾을 수 없습니다",
+  "notFound.body": "들어오신 주소는 여기에 없습니다. 옮겨졌거나, 주소가 잘못 적혔을 수 있습니다.",
+  "notFound.home": "홈으로 가기",
+
   "footer.rights": "All rights reserved."
 }
