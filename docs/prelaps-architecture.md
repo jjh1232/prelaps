@@ -226,10 +226,27 @@ npx wrangler pages deployment list --project-name prelaps-home
 mojibake 의 내부 링크가 `href="index.html"` 이므로 홈 버튼 한 번에 바로 터진다.
 `withPrefixedLocation()` 이 Location 에 접두사를 다시 붙여 막는다.
 
-### mojibake 이관
+### mojibake 는 Pages 가 아니라 Worker 다 — ROUTES 의 프록시는 곧 죽는다
 
-`prelaps-mojibake` Pages 프로젝트는 아직 없다. `/mojibake/*` 는 530 이다.
-그쪽에 넘길 요구사항 전문은 [mojibake-handoff.md](mojibake-handoff.md).
+`ROUTES` 의 `'/mojibake': 'prelaps-mojibake.pages.dev'` 는 **틀린 전제였다.**
+그런 Pages 프로젝트는 존재한 적이 없고(`/mojibake/*` 가 530 인 이유),
+mojibake 는 별도 저장소(`breakkorean`, GitHub `jjh1232/mojam`)의
+**Workers + Static Assets** 프로젝트로 `mojibake.prelaps.com` 에 붙어 있다.
+
+옮기는 방식은 프록시가 아니라 **그 Worker 에 `prelaps.com/mojibake/*` 라우트를
+직접 붙이는 것**이다. Cloudflare 가 더 구체적인 라우트를 먼저 쓰므로
+`prelaps.com/*` 와 겹쳐도 mojibake 쪽이 이긴다. 요청이 한 번만 돌고,
+`.pages.dev` 중복 노출도 Location 접두사 문제도 아예 생기지 않는다.
+
+절차 전문은 `breakkorean/docs/배포.md` 에 있다.
+
+그 배포가 끝나면 이 Worker 의 `ROUTES` 항목과 `withPrefixedLocation()` 은
+호출되지 않는 죽은 코드가 된다. **다만 `/mojibake` (끝 슬래시 없음) → `/mojibake/`
+301 은 남겨야 한다** — 그 경로는 `prelaps.com/mojibake/*` 패턴에 안 걸려서
+계속 여기로 들어온다.
+
+두 번째 도구부터 Pages 를 쓸지 Workers Assets 를 쓸지는 §11 미정으로 남긴다.
+`html_handling` 과 `not_found_handling` 을 명시할 수 있는 쪽은 Workers Assets 뿐이다.
 
 ### 404
 
