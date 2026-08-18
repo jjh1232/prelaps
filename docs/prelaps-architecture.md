@@ -113,71 +113,48 @@ export default {
       const target = new URL(url);
       target.hostname = host;
       target.pathname = path.slice(prefix.length);
-      return fetch(new Request(target, request));
+      return withPrefixedLocation(
+        await fetch(new Request(target, request)),
+        prefix,
+        host,
+      );
     }
 
-    return serveHome(url, request);
+    // ROUTES 에 안 걸리면 허브로. 경로를 손대지 않는다 —
+    // Pages 가 /ko/ 와 /ko.html 을 알아서 /ko 로 308 해 준다.
+    const target = new URL(url);
+    target.hostname = HOME;
+    return fetch(new Request(target, request));
   },
 };
 
 /**
- * 허브(prelaps-home)로 넘긴다.
+ * 업스트림이 돌려준 리다이렉트의 Location 에 접두사를 다시 붙인다.
  *
- * 허브의 주소는 끝 슬래시 없는 /ko, /ko/about 한 형태뿐이다.
- * canonical / hreflang / sitemap / 내부 링크가 전부 이 형태로 나간다.
- *
- * 문제는 Cloudflare Pages 가 확장자 없는 경로를 무조건 끝 슬래시로 308 시킨다는 것.
- * (/ko -> /ko/, /ko/about -> /ko/about/ — 실측. dist 를 파일 형식으로 뽑아
- *  ko.html 이 실제로 있어도 마찬가지다. Pages 자체 정규화라 빌드로는 못 막는다.)
- * 그대로 두면 우리가 색인시키려는 주소가 전부 리다이렉트되는 주소가 된다.
- *
- * 그래서 여기서 두 방향으로 정리한다.
- *  - 들어온 주소가 정식 형태가 아니면 정식 형태로 301.
- *  - 업스트림에는 .html 을 직접 집어서 요청한다. 확장자가 붙으면 Pages 가
- *    끝 슬래시를 붙이지 않으므로 308 없이 바로 200 이 온다.
- * 결과적으로 주소창은 /ko 인 채로 리다이렉트 0회.
+ * Pages 는 Location 을 자기 루트 기준으로 쓴다. 그대로 흘려보내면
+ * 접두사가 사라져 엉뚱한 곳으로 간다.
+ *   /mojibake/index.html -> 업스트림 308 Location: /      -> 허브 홈으로 튕김
+ *   /mojibake/en         -> 업스트림 308 Location: /en/   -> 허브의 영어 페이지로 튕김
+ * 도구 안에서 홈 링크(href="index.html")를 누르면 사이트 밖으로 나가버린다.
  */
-function serveHome(url, request) {
-  const path = url.pathname;
+function withPrefixedLocation(response, prefix, host) {
+  const location = response.headers.get('location');
+  if (!location) return response;
 
-  const canonical = canonicalPath(path);
-  if (canonical !== path) {
-    url.pathname = canonical;
-    return Response.redirect(url.toString(), 301);
-  }
+  const to = new URL(location, `https://${host}/`);
 
-  const target = new URL(url);
-  target.hostname = HOME;
+  // 남의 도메인으로 내보내는 리다이렉트는 우리 경로가 아니다. 건드리지 않는다.
+  if (to.hostname !== host) return response;
 
-  // 확장자 없는 경로만 .html 로 바꿔 집는다.
-  // /robots.txt, /sitemap-0.xml, /_astro/*.css 같은 실제 파일은 그대로 통과.
-  // 루트(/)는 Pages 의 _redirects 가 301 로 /ko 에 넘겨준다.
-  if (path !== '/' && !hasExtension(path)) {
-    target.pathname = path + '.html';
-  }
+  const headers = new Headers(response.headers);
+  headers.set('location', prefix + to.pathname + to.search + to.hash);
 
-  return fetch(new Request(target, request));
-}
-
-/** 허브 경로의 정식 형태. 이미 정식이면 받은 값을 그대로 돌려준다. */
-function canonicalPath(path) {
-  if (path === '/') return path;
-
-  // /ko.html, /ko/about.html 로 직접 들어온 경우. 확장자 없는 쪽이 정식이다.
-  let p = path.endsWith('.html') ? path.slice(0, -'.html'.length) : path;
-
-  // /index 는 홈이지 별도 주소가 아니다. (/index.html 도 여기로 모인다)
-  if (p === '/index') return '/';
-
-  // 끝 슬래시를 뗀다. //ko// 처럼 연속으로 붙어 온 경우까지 한 번에.
-  p = p.replace(/\/+$/, '');
-
-  return p === '' ? '/' : p;
-}
-
-/** 마지막 경로 조각에 점이 있으면 파일로 본다. */
-function hasExtension(path) {
-  return path.slice(path.lastIndexOf('/') + 1).includes('.');
+  // 리다이렉트 응답이라 body 는 비어 있다. 상태 코드는 업스트림 것을 그대로 쓴다.
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers,
+  });
 }
 ```
 
@@ -199,36 +176,60 @@ routes = [
 ]
 ```
 
-### Cloudflare Pages 의 끝 슬래시 정규화 (2026-08-18 실측)
+### 배포는 수동이다 (중요)
 
-Pages 는 **확장자 없는 경로를 무조건 끝 슬래시 쪽으로 308** 시킨다.
+**prelaps-home 은 Pages 의 Git 연동이 걸려 있지 않다.** GitHub 에 push 해도
+프로덕션은 바뀌지 않는다. 반드시 아래를 직접 실행해야 한다.
+
+```bash
+npm run build
+npx wrangler pages deploy dist --project-name prelaps-home --branch main
+```
+
+배포된 커밋 확인:
+
+```bash
+npx wrangler pages deployment list --project-name prelaps-home
+```
+
+2026-08-18 의 "`/ko` 가 `/ko/` 로 튄다" 문제는 실은 이것이 원인이었다.
+끝 슬래시를 고치는 커밋(`3a5321c`)이 push 만 되고 배포가 안 된 상태였는데,
+`.pages.dev` 를 찔러 보면 **없는 파일도 200 을 돌려주기 때문에**(아래 404 항목)
+`/ko.html` 이 200 인 것을 보고 "배포됐다"고 잘못 읽었다.
+빌드 결과가 올라갔는지는 status code 가 아니라 `deployment list` 로 확인할 것.
+
+### 끝 슬래시는 build.format 이 결정한다 (2026-08-18 실측)
+
+| `build.format` | dist | `/ko` | `/ko/` | `/ko.html` |
+|---|---|---|---|---|
+| `'directory'` | `ko/index.html` | **308 → `/ko/`** | 200 | — |
+| `'file'` | `ko.html` | **200** | 308 → `/ko` | 308 → `/ko` |
+
+`'file'` 이면 Pages 가 알아서 끝 슬래시와 `.html` 을 떼는 쪽으로 정규화한다.
+`astro.config.mjs` 의 `trailingSlash: 'never'` 와 방향이 맞으므로 **Worker 가 허브 경로를
+건드릴 필요가 없다.** 허브 요청은 경로 그대로 프록시한다.
+
+두 설정은 세트다. 한쪽만 바꾸면 canonical 이 가리키는 주소가 리다이렉트되는 주소가 된다.
+
+### 프록시 응답의 Location 은 접두사를 잃는다
+
+`/mojibake/*` 는 접두사를 떼고 넘기므로, 업스트림이 돌려준 리다이렉트의 Location 도
+접두사가 빠진 채로 나온다. 그대로 흘리면 도구 밖으로 튕긴다.
 
 ```
-prelaps-home.pages.dev/ko            -> 308  Location: /ko/
-prelaps-home.pages.dev/ko/about      -> 308  Location: /ko/about/
-prelaps-home.pages.dev/ko.html       -> 200
-prelaps-home.pages.dev/ko/about.html -> 200
+/mojibake/index.html -> 업스트림 308 Location: /     -> 허브 홈으로 이탈
+/mojibake/en         -> 업스트림 308 Location: /en/  -> 허브의 영어 페이지로 이탈
 ```
 
-`/ko/about` 은 옆에 `about/` 디렉터리가 아예 없는데도 308 이 난다. 즉
-"폴더로 뽑아서 그렇다"가 아니라 Pages 자체의 정규화다. `build.format: 'file'` 로
-`ko.html` 을 실제로 만들어 놔도 막히지 않는다.
-
-그대로 두면 canonical / hreflang / sitemap / 내부 링크가 가리키는 주소 전부가
-리다이렉트되는 주소가 된다. 그래서 Worker 의 `serveHome()` 이 정리한다.
-
-- 들어온 주소가 정식 형태(`/ko`)가 아니면 → 301 로 정식 형태에 보낸다
-- 업스트림에는 `.html` 을 붙여 요청한다 → 확장자가 있으면 308 이 안 붙어 바로 200
-
-주소창은 `/ko` 인 채로 리다이렉트 0회가 된다.
-`astro.config.mjs` 의 `trailingSlash: 'never'` / `build.format: 'file'` 은 이 구조의 전제이므로
-둘 다 그대로 유지해야 한다.
+mojibake 의 내부 링크가 `href="index.html"` 이므로 홈 버튼 한 번에 바로 터진다.
+`withPrefixedLocation()` 이 Location 에 접두사를 다시 붙여 막는다.
 
 ### 404
 
 Pages 는 `404.html` 이 있으면 그것을 status 404 로 돌려주고, **없으면 `index.html` 을
 status 200 으로** 돌려준다(SPA 폴백). 허브에 404 페이지가 없던 동안 존재하지 않는 모든
 주소가 soft 404 였다. `src/pages/404.astro` 가 그 구멍을 막는다 — 이 파일은 지우지 말 것.
+새로 붙이는 Pages 프로젝트도 전부 `404.html` 을 가져야 한다.
 
 ---
 
