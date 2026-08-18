@@ -178,8 +178,10 @@ routes = [
 
 ### 배포는 수동이다 (중요)
 
-**prelaps-home 은 Pages 의 Git 연동이 걸려 있지 않다.** GitHub 에 push 해도
-프로덕션은 바뀌지 않는다. 반드시 아래를 직접 실행해야 한다.
+**Pages 에 GitHub 연동은 걸려 있지만 push 로 빌드가 돌지 않는다.**
+`3a5321c`, `44f97aa`, `3413060` 어느 것도 자동 빌드를 만들지 못했고, 프로덕션은
+12시간 전 `0059ea6` 에 멈춰 있었다. 원인을 잡기 전까지는 아래를 직접 실행할 것.
+(대시보드 Settings > Builds & deployments 에서 자동 배포 상태를 확인해야 한다.)
 
 ```bash
 npm run build
@@ -223,6 +225,11 @@ npx wrangler pages deployment list --project-name prelaps-home
 
 mojibake 의 내부 링크가 `href="index.html"` 이므로 홈 버튼 한 번에 바로 터진다.
 `withPrefixedLocation()` 이 Location 에 접두사를 다시 붙여 막는다.
+
+### mojibake 이관
+
+`prelaps-mojibake` Pages 프로젝트는 아직 없다. `/mojibake/*` 는 530 이다.
+그쪽에 넘길 요구사항 전문은 [mojibake-handoff.md](mojibake-handoff.md).
 
 ### 404
 
