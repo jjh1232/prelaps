@@ -1,7 +1,7 @@
 import en from '../locales/en.json';
 import ko from '../locales/ko.json';
 import ja from '../locales/ja.json';
-import { DEFAULT_LOCALE, LOCALES, SITE, type Locale } from './config';
+import { DEFAULT_LOCALE, LOCALES, SITE, XDEFAULT_LOCALE, type Locale } from './config';
 
 /**
  * en.json 이 키 목록의 기준(source of truth)이다.
@@ -44,7 +44,8 @@ export function absoluteUrl(path: string): string {
  * 규칙(docs/prelaps-architecture.md §5):
  *  - 모든 언어 페이지가 "전체 목록"을 동일하게 갖는다. 하나라도 빠지면 구글이 무시한다.
  *  - x-default 는 필수. 언어를 특정하지 못한 방문자를 어디로 보낼지 알리는 값이므로
- *    기본 언어(DEFAULT_LOCALE) 페이지를 가리킨다.
+ *    XDEFAULT_LOCALE(영어) 페이지를 가리킨다. 루트(/)가 향하는 DEFAULT_LOCALE 과
+ *    다른 값인 것이 정상이다 — 상수 선언부의 설명 참고.
  */
 export function hreflangLinks(path = '') {
   const links = LOCALES.map((lang) => ({
@@ -54,7 +55,7 @@ export function hreflangLinks(path = '') {
 
   links.push({
     hreflang: 'x-default',
-    href: absoluteUrl(localizePath(DEFAULT_LOCALE, path)),
+    href: absoluteUrl(localizePath(XDEFAULT_LOCALE, path)),
   });
 
   return links;
