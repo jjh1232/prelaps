@@ -196,3 +196,98 @@ main {
   font-size: 0.92rem;
   color: var(--fg-muted);
 }
+
+/* --- 정책 문서 (privacy / terms / contact) --- */
+
+.doc {
+  max-width: 46rem;
+}
+
+.doc h2 {
+  margin: 2.6rem 0 0.6rem;
+  font-size: 1.15rem;
+}
+
+.doc h3 {
+  margin: 1.7rem 0 0.4rem;
+  font-size: 1rem;
+}
+
+.doc p,
+.doc ul {
+  margin: 0 0 0.9rem;
+}
+
+.doc ul {
+  padding-left: 1.2rem;
+}
+
+.doc li {
+  margin: 0.25rem 0;
+}
+
+.updated {
+  color: var(--fg-muted);
+  font-size: 0.92rem;
+}
+
+.doc .email {
+  font-size: 1.05rem;
+}
+
+/* 도구별 안내 블록. 도구가 늘어도 이 한 덩어리를 반복할 뿐이다 (docs §8). */
+.tool-block {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--bg-soft);
+  padding: 1rem 1.25rem;
+  margin: 0 0 0.75rem;
+  scroll-margin-top: 1.5rem;   /* 도구 푸터의 #앵커로 뛰어왔을 때 제목이 안 잘리게 */
+}
+
+.tool-block h3 {
+  margin: 0 0 0.6rem;
+  font-size: 1.02rem;
+  color: var(--accent);
+}
+
+.tool-block dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.9rem;
+  margin: 0;
+  font-size: 0.94rem;
+}
+
+.tool-block dt {
+  color: var(--fg-muted);
+}
+
+.tool-block dd {
+  margin: 0;
+}
+
+.tool-block .note {
+  margin: 0.7rem 0 0;
+  font-size: 0.9rem;
+  color: var(--fg-muted);
+}
+
+/* --- 푸터의 정책 링크 --- */
+
+.footer-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem 1.1rem;
+  margin: 0 0 0.6rem;
+}
+
+.footer-nav a {
+  color: var(--fg-muted);
+  text-decoration: none;
+  font-size: 0.92rem;
+}
+
+.footer-nav a:hover {
+  color: var(--accent);
+}

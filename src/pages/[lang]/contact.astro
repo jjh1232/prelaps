@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import type { Locale } from '../../i18n/config';
+import { localeStaticPaths, useTranslations } from '../../i18n/utils';
+
+export const getStaticPaths = localeStaticPaths;
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+
+const email = t('site.email');
+---
+
+<Base
+  lang={lang}
+  path="/contact"
+  title={t('contact.title')}
+  description={t('contact.description')}
+>
+  <div class="doc">
+    <h1>{t('contact.heading')}</h1>
+
+    <h2>{t('contact.email.h')}</h2>
+    <p>{t('contact.email.p')}</p>
+    <p class="email"><a href={`mailto:${email}`}>{email}</a></p>
+    <p class="updated">{t('contact.email.note')}</p>
+
+    <h2>{t('contact.report.h')}</h2>
+    <p>{t('contact.report.p')}</p>
+    <p>{t('contact.report.warn')}</p>
+
+    <h2>{t('contact.before.h')}</h2>
+    <p>{t('contact.before.p')}</p>
+  </div>
+</Base>

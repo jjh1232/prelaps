@@ -1,0 +1,94 @@
+---
+import Base from '../../layouts/Base.astro';
+import type { Locale } from '../../i18n/config';
+import { localeStaticPaths, useTranslations } from '../../i18n/utils';
+
+export const getStaticPaths = localeStaticPaths;
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+
+const email = t('site.email');
+
+/**
+ * §3 「서비스별 안내」. 도구가 늘면 여기 한 줄만 추가한다 (docs §8).
+ * id 는 도구 푸터가 /{lang}/privacy#<id> 앵커로 가리키는 값이라 슬러그와 같아야 한다.
+ * 네 항목이 전부 「없음」인 것이 정상이다 — 이 사이트에는 입력을 받는 서버가 없다.
+ */
+const tools = [
+  { id: 'mojibake', name: t('tools.mojibake.name'), note: t('privacy.tool.mojibake.note') },
+  { id: 'race', name: t('privacy.tool.race.name'), note: t('privacy.tool.race.note') },
+];
+---
+
+<Base
+  lang={lang}
+  path="/privacy"
+  title={t('privacy.title')}
+  description={t('privacy.description')}
+>
+  <div class="doc">
+    <h1>{t('privacy.heading')}</h1>
+    <p class="lede">{t('privacy.intro')}</p>
+    <p class="updated">{t('common.updated')}: {t('site.updatedAt')}</p>
+
+    <h2>{t('privacy.s1.h')}</h2>
+    <p>{t('privacy.s1.p1')}</p>
+    <p>{t('privacy.s1.p2')}</p>
+    <p>{t('privacy.s1.p3')}</p>
+
+    <h2>{t('privacy.s2.h')}</h2>
+
+    <h3>{t('privacy.ads.h')}</h3>
+    <p>{t('privacy.ads.p1')}</p>
+    <p>
+      {t('privacy.ads.p2')}{' '}
+      <a href="https://adssettings.google.com/" rel="noopener">
+        {t('privacy.ads.optOut')}
+      </a>.
+    </p>
+
+    <h3>{t('privacy.fonts.h')}</h3>
+    <p>{t('privacy.fonts.p')}</p>
+
+    <h3>{t('privacy.logs.h')}</h3>
+    <p>{t('privacy.logs.p')}</p>
+
+    <h3>{t('privacy.children.h')}</h3>
+    <p>{t('privacy.children.p')}</p>
+
+    <h3>{t('privacy.rights.h')}</h3>
+    <p>{t('privacy.rights.p')}</p>
+
+    <h3>{t('privacy.contact.h')}</h3>
+    <p>{t('privacy.contact.p')} <a href={`mailto:${email}`}>{email}</a></p>
+
+    <h3>{t('privacy.changes.h')}</h3>
+    <p>{t('privacy.changes.p')}</p>
+
+    <h2>{t('privacy.s3.h')}</h2>
+    <p>{t('privacy.s3.intro')}</p>
+
+    {
+      tools.map((tool) => (
+        <section class="tool-block" id={tool.id}>
+          <h3>{tool.name}</h3>
+          <dl>
+            <dt>{t('privacy.f.collect')}</dt>
+            <dd>{t('privacy.none')}</dd>
+            <dt>{t('privacy.f.purpose')}</dt>
+            <dd>{t('privacy.none')}</dd>
+            <dt>{t('privacy.f.retention')}</dt>
+            <dd>{t('privacy.none')}</dd>
+            <dt>{t('privacy.f.third')}</dt>
+            <dd>{t('privacy.none')}</dd>
+          </dl>
+          <p class="note">{tool.note}</p>
+        </section>
+      ))
+    }
+
+    <h2>{t('privacy.s4.h')}</h2>
+    <p>{t('site.updatedAt')}</p>
+  </div>
+</Base>

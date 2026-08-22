@@ -1,0 +1,53 @@
+---
+import Base from '../../layouts/Base.astro';
+import type { Locale } from '../../i18n/config';
+import { localeStaticPaths, useTranslations } from '../../i18n/utils';
+
+export const getStaticPaths = localeStaticPaths;
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+
+const email = t('site.email');
+---
+
+<Base
+  lang={lang}
+  path="/terms"
+  title={t('terms.title')}
+  description={t('terms.description')}
+>
+  <div class="doc">
+    <h1>{t('terms.heading')}</h1>
+    <p class="lede">{t('terms.intro')}</p>
+    <p class="updated">{t('common.updated')}: {t('site.updatedAt')}</p>
+
+    <h2>{t('terms.what.h')}</h2>
+    <p>{t('terms.what.p')}</p>
+
+    <h2>{t('terms.noWarranty.h')}</h2>
+    <p>{t('terms.noWarranty.p1')}</p>
+    <p>{t('terms.noWarranty.p2')}</p>
+
+    <h2>{t('terms.duty.h')}</h2>
+    <p>{t('terms.duty.p1')}</p>
+    <ul>
+      <li>{t('terms.duty.li1')}</li>
+      <li>{t('terms.duty.li2')}</li>
+      <li>{t('terms.duty.li3')}</li>
+    </ul>
+    <p>{t('terms.duty.p2')}</p>
+
+    <h2>{t('terms.change.h')}</h2>
+    <p>{t('terms.change.p')}</p>
+
+    <h2>{t('terms.liability.h')}</h2>
+    <p>{t('terms.liability.p')}</p>
+
+    <h2>{t('terms.law.h')}</h2>
+    <p>{t('terms.law.p')}</p>
+
+    <h2>{t('terms.contact.h')}</h2>
+    <p>{t('terms.contact.p')} <a href={`mailto:${email}`}>{email}</a></p>
+  </div>
+</Base>
