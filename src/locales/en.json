@@ -18,6 +18,8 @@
   "home.cat.roulette": "Roulette",
   "tools.mojibake.name": "Mojibake Fixer",
   "tools.mojibake.desc": "Recover text that turned into garbled characters after being saved or opened with the wrong encoding — EUC-KR read as UTF-8, and other common mismatches.",
+  "tools.imagesquish.name": "Bulk Image Resizer",
+  "tools.imagesquish.desc": "Resize a whole batch at once, convert to WebP, JPEG or PNG, and take it as a zip. Nothing is uploaded, so there is no cap on size or count.",
   "tools.race.name": "Race Roulette",
   "tools.race.desc": "Type in names and watch them race. Decide lunch, chores, or who pays — the finish order is your result, and weights show up as boosters you can watch rather than hidden odds.",
   "about.title": "About prelaps",
@@ -64,6 +66,7 @@
   "privacy.f.note": "Note",
   "privacy.none": "None",
   "privacy.tool.mojibake.note": "Pasted text and uploaded files are decoded in the browser and are never sent anywhere.",
+  "privacy.tool.imagesquish.note": "Images you drop in are processed inside the browser and never sent to a server. Neither are their filenames.",
   "privacy.tool.race.name": "Race Picker",
   "privacy.tool.race.note": "Names and weights you enter stay in the page. Refreshing clears them.",
   "privacy.s4.h": "4. Last updated",
@@ -100,5 +103,9 @@
   "contact.report.p": "Please say which tool you were using and what you expected to happen. If a tool produced a wrong result, the input that caused it helps most.",
   "contact.report.warn": "Please do not send sensitive files. The tools never upload your files, and they are not needed to reproduce a report either.",
   "contact.before.h": "Before you write",
-  "contact.before.p": "Each tool page has a section on where that tool commonly fails. A fair share of reports turn out to be cases the tool cannot fix, because the original information is already gone."
+  "contact.before.p": "Each tool page has a section on where that tool commonly fails. A fair share of reports turn out to be cases the tool cannot fix, because the original information is already gone.",
+  "home.cat.program": "Programs",
+  "tools.vfile.name": "VFilemanage",
+  "tools.vfile.desc": "Gather files buried deep in folders into one place and open the originals on double-click. Nothing is moved. A Windows program you download and install.",
+  "privacy.tool.vfile.note": "This page only provides information and download links. Once downloaded, the program runs entirely on your own PC, and what you organise and your settings are stored in your user folder on that PC. The download buttons lead to GitHub, where GitHub's own policy applies."
 }

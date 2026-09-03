@@ -6,3 +6,5 @@ Allow: /
 Sitemap: https://prelaps.com/sitemap-index.xml
 Sitemap: https://prelaps.com/mojibake/sitemap.xml
 Sitemap: https://prelaps.com/race/sitemap.xml
+Sitemap: https://prelaps.com/imagesquish/sitemap.xml
+Sitemap: https://prelaps.com/vfile/sitemap.xml

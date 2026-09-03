@@ -5,7 +5,7 @@ import type { TranslationKey } from '../i18n/utils';
  * 도구를 묶는 갈래. 홈에서 이 순서대로 구획이 나온다.
  * 갈래를 늘릴 때는 여기 한 줄 + locales 의 `home.cat.<이름>` 한 줄이면 된다.
  */
-export const CATEGORIES = ['tool', 'roulette'] as const;
+export const CATEGORIES = ['tool', 'roulette', 'program'] as const;
 export type Category = (typeof CATEGORIES)[number];
 
 export interface Tool {
@@ -32,12 +32,30 @@ export const TOOLS: Tool[] = [
     href: (lang) => (lang === 'ko' ? '/mojibake/' : `/mojibake/${lang}/`),
   },
   {
+    id: 'imagesquish',
+    category: 'tool',
+    nameKey: 'tools.imagesquish.name',
+    descKey: 'tools.imagesquish.desc',
+    // 허브와 같은 세 언어. 언어판은 전부 /imagesquish/<언어>/ 아래다 (헌법 §5).
+    href: (lang) => `/imagesquish/${lang}/`,
+  },
+  {
     id: 'race',
     category: 'roulette',
     nameKey: 'tools.race.name',
     descKey: 'tools.race.desc',
     // 허브와 같은 세 언어를 갖추고 있다. 언어판은 전부 /race/<언어>/ 아래다 (헌법 §5).
     href: (lang) => `/race/${lang}/`,
+  },
+  {
+    id: 'vfile',
+    // 브라우저에서 도는 다른 것들과 달리 내려받아 설치하는 프로그램이다.
+    // 같은 줄에 세우면 "여기 있는 건 클릭하면 바로 쓴다" 는 기대가 깨져서 갈래를 나눴다.
+    category: 'program',
+    nameKey: 'tools.vfile.name',
+    descKey: 'tools.vfile.desc',
+    // 허브와 같은 세 언어. 언어판은 전부 /vfile/<언어>/ 아래다 (헌법 §5).
+    href: (lang) => `/vfile/${lang}/`,
   },
 ];
 

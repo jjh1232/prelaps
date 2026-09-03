@@ -18,6 +18,8 @@
   "home.cat.roulette": "룰렛",
   "tools.mojibake.name": "한글 깨짐 복구기",
   "tools.mojibake.desc": "인코딩이 어긋나 깨진 글자를 원래대로 되돌립니다. EUC-KR 을 UTF-8 로 읽은 경우처럼 흔한 어긋남을 다룹니다.",
+  "tools.imagesquish.name": "이미지 일괄 리사이즈",
+  "tools.imagesquish.desc": "여러 장을 한 번에 줄이고 WebP·JPEG·PNG 로 바꿔 zip 으로 받습니다. 업로드가 없어서 용량·장수 제한도 없습니다.",
   "tools.race.name": "달리기 룰렛",
   "tools.race.desc": "이름을 넣으면 캐릭터들이 달려서 순위를 정합니다. 점심 메뉴, 벌칙, 발표 순서를 돌림판 대신 달리기로. 가중치는 숨은 확률이 아니라 눈에 보이는 부스터로 들어갑니다.",
   "about.title": "prelaps 소개",
@@ -64,6 +66,7 @@
   "privacy.f.note": "비고",
   "privacy.none": "없음",
   "privacy.tool.mojibake.note": "붙여넣은 글자와 올린 파일은 브라우저 안에서 복구되며, 어디로도 전송되지 않습니다.",
+  "privacy.tool.imagesquish.note": "끌어다 놓은 이미지는 브라우저 안에서만 처리되며 서버로 전송되지 않습니다. 파일 이름도 마찬가지입니다.",
   "privacy.tool.race.name": "달리기 뽑기",
   "privacy.tool.race.note": "입력한 이름과 가중치는 페이지 안에만 있습니다. 새로 고치면 사라집니다.",
   "privacy.s4.h": "4. 최종 수정일",
@@ -100,5 +103,9 @@
   "contact.report.p": "어떤 도구에서 무엇을 기대했는지 함께 적어주세요. 결과가 잘못 나온 경우에는 그 결과를 만든 입력이 가장 도움이 됩니다.",
   "contact.report.warn": "내용이 민감한 파일은 보내지 마세요. 도구는 애초에 파일을 서버로 받지 않으며, 제보를 재현하는 데도 필요하지 않습니다.",
   "contact.before.h": "문의 전에 확인해 보실 것",
-  "contact.before.p": "각 도구 페이지에 「어떤 경우에 잘 안 되는지」를 정리해 두었습니다. 제보 중 적지 않은 수가 원본 정보가 이미 사라져 어떤 도구로도 되살릴 수 없는 경우입니다."
+  "contact.before.p": "각 도구 페이지에 「어떤 경우에 잘 안 되는지」를 정리해 두었습니다. 제보 중 적지 않은 수가 원본 정보가 이미 사라져 어떤 도구로도 되살릴 수 없는 경우입니다.",
+  "home.cat.program": "프로그램",
+  "tools.vfile.name": "VFilemanage",
+  "tools.vfile.desc": "깊은 폴더에 묻힌 파일을 한곳에 모아 두고 더블클릭으로 바로 엽니다. 원본은 옮기지 않습니다. 내려받아 설치하는 Windows 프로그램입니다.",
+  "privacy.tool.vfile.note": "이 페이지는 안내와 내려받기 링크만 제공합니다. 프로그램은 내려받은 뒤 사용자 PC 안에서만 동작하며, 정리한 내용과 설정은 그 PC의 사용자 폴더에 저장됩니다. 내려받기 버튼은 GitHub 으로 연결되며, 그때부터는 GitHub 의 정책이 적용됩니다."
 }
