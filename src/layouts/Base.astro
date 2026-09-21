@@ -68,6 +68,18 @@ const footerNav = [
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      네이버 웹마스터도구 소유확인.
+    
+      public/navere419….html 파일도 같이 두고 있지만 **그것만으로는 안 된다** —
+      trailingSlash:'never' + build.format:'file' 조합이라 Pages 가 .html 을 떼고
+      308 을 내보낸다. 네이버가 요구하는 것은 그 주소가 곧바로 200 인 것이라,
+      재확인 시점에 실패한다. 메타 태그 쪽은 그 정규화에 안 걸린다. (2026-09-21)
+    
+      ⚠ 토큰은 파일 이름에서 naver 접두어를 뗀 부분이다. 네이버 서치어드바이저에서
+        한 번 대조해 볼 것 — 틀려도 화면에는 아무 표시가 없고 소유확인만 조용히 실패한다.
+    -->
+    <meta name="naver-site-verification" content="e419a5c78cc018ea36007fb328a6ec00" />
 
     <!--
       Google tag (gtag.js) — 이 레이아웃을 쓰는 모든 페이지에 한 번에 적용된다.
