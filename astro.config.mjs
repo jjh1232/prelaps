@@ -65,6 +65,29 @@ export default defineConfig({
 
   integrations: [
     sitemap({
+      // 도구 사이트맵을 이 인덱스에 물린다.
+      //
+      // robots.txt 의 `Sitemap:` 줄만으로는 부족했다. 구글이 읽기는 하지만
+      // 우선순위가 낮아서, 2026-09-21 서치콘솔 기준 /mojibake/excel-csv 가
+      // 하위 경로로 옮긴 지 34일이 지나도록 「Google에는 아직 알려지지 않은 URL」·
+      // 「감지된 참조 사이트맵이 없습니다」 였다. 색인 21개가 허브 18개와 거의
+      // 같았던 것도 도구 51개가 통째로 안 잡히고 있었다는 뜻이다.
+      //
+      // 인덱스에 물려 두면 서치콘솔에 이미 제출된 sitemap-index.xml 하나로
+      // 69개가 전부 딸려 들어간다. robots.txt 의 줄은 그대로 두어도 무해하다.
+      //
+      // ⚠ 사이트맵 인덱스 안에 또 다른 인덱스를 넣으면 안 된다 (프로토콜 위반).
+      //   그래서 Astro 도구는 sitemap-index.xml 이 아니라 sitemap-0.xml 을 적는다.
+      //   도구 페이지가 45,000개를 넘으면 sitemap-1.xml 이 생겨 여기를 고쳐야 하는데,
+      //   지금은 3개라 한참 멀었다.
+      customSitemaps: [
+        'https://prelaps.com/mojibake/sitemap.xml',
+        'https://prelaps.com/race/sitemap.xml',
+        'https://prelaps.com/imagesquish/sitemap.xml',
+        'https://prelaps.com/vfile/sitemap.xml',
+        'https://prelaps.com/doceditor/sitemap-0.xml',
+        'https://prelaps.com/idphoto/sitemap-0.xml',
+      ],
       // 루트(/)는 /ko 로 넘기기만 하는 통로다. 색인 대상은 /ko 쪽이므로 목록에서 뺀다.
       filter: (page) => page !== 'https://prelaps.com/',
 
