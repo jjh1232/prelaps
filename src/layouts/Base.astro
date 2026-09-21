@@ -27,6 +27,19 @@ interface Props {
 
 const { lang, path = '', title, description, noindex = false } = Astro.props;
 
+/**
+ * 애드센스 퍼블리셔 ID (`ca-pub-…`). **발급 전에는 빈 문자열로 둔다** —
+ * 비어 있으면 아래에서 스크립트를 아예 내보내지 않는다. 플레이스홀더를 그대로
+ * 올리면 남의 client 로 광고 요청이 나가고, 하필 그 상태가 심사에 걸린다.
+ *
+ * ⚠ 같은 값을 채울 곳이 다섯 군데다. 여기(허브 15장)와 도구 Worker 넷 —
+ *   breakkorean/src/index.js, imageSquish/worker/index.js,
+ *   rulletMvp/worker/index.js, vfile/worker/index.js 의 `ADSENSE_ID`.
+ *   여기만 채우면 심사 대상 페이지의 과반인 도구 24장이 통째로 빠진다.
+ *   Astro 레이아웃 하나가 사이트 전체를 덮는다는 말은 이 사이트에서는 틀리다.
+ */
+const ADSENSE_ID = 'ca-pub-3724742785414572';
+
 const t = useTranslations(lang);
 const canonical = absoluteUrl(localizePath(lang, path)); // canonical 은 항상 자기 자신
 const alternates = noindex ? [] : hreflangLinks(path);
@@ -34,6 +47,8 @@ const year = new Date().getFullYear();
 
 const nav = [
   { path: '', label: t('nav.home') },
+  // 읽을 거리를 소개보다 앞에 둔다. 도구 안에만 있을 때는 존재 자체가 안 보였다.
+  { path: '/guides', label: t('nav.guides') },
   { path: '/about', label: t('nav.about') },
 ];
 
@@ -94,11 +109,21 @@ const footerNav = [
     <meta property="og:description" content={description} />
     {!noindex && <meta property="og:url" content={canonical} />}
 
-    <!--
-      애드센스: 승인 후 아래 주석을 풀고 ca-pub-XXXXXXXX 를 실제 퍼블리셔 ID 로 교체.
-      이 레이아웃을 쓰는 모든 페이지에 한 번에 적용된다. (docs §9)
-      <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-XXXXXXXX" crossorigin="anonymous"></script>
-    -->
+    {/*
+      애드센스. 위 ADSENSE_ID 에 값이 들어가는 순간 이 레이아웃을 쓰는 모든 페이지에
+      한 번에 붙는다 (docs §9). is:inline 은 GA 와 같은 이유로 필수다 —
+      빼면 Astro 가 번들로 끌어가 실행 시점이 바뀐다.
+    */}
+    {
+      ADSENSE_ID ? (
+        <script
+          is:inline
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_ID}`}
+          crossorigin="anonymous"
+        />
+      ) : null
+    }
   </head>
 
   <body>

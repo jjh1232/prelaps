@@ -18,6 +18,8 @@ const email = t('site.email');
 const tools = [
   { id: 'mojibake', name: t('tools.mojibake.name'), note: t('privacy.tool.mojibake.note') },
   { id: 'imagesquish', name: t('tools.imagesquish.name'), note: t('privacy.tool.imagesquish.note') },
+  { id: 'doceditor', name: t('tools.doceditor.name'), note: t('privacy.tool.doceditor.note') },
+  { id: 'idphoto', name: t('tools.idphoto.name'), note: t('privacy.tool.idphoto.note') },
   { id: 'race', name: t('privacy.tool.race.name'), note: t('privacy.tool.race.note') },
   // 다른 것들과 달리 브라우저에서 돌지 않는다. 여기는 안내와 링크만 있고
   // 프로그램은 방문자 PC 에서 도므로, 「없음」의 이유가 다른 항목과 다르다.
@@ -43,14 +45,54 @@ const tools = [
 
     <h2>{t('privacy.s2.h')}</h2>
 
+    {/*
+      방문 통계가 광고보다 먼저 온다 — 지금 실제로 돌고 있는 것이 이쪽이기 때문이다.
+      GA 스니펫은 허브가 Base.astro 에서, 도구는 각 Worker 가 </head> 앞에 끼운다.
+      계측을 끄거나 켤 때 이 절을 같이 고치지 않으면 방침이 곧바로 거짓말이 된다.
+    */}
+    <h3>{t('privacy.analytics.h')}</h3>
+    <p>{t('privacy.analytics.p1')}</p>
+    <p>{t('privacy.analytics.p2')}</p>
+    <p>{t('privacy.analytics.p3')}</p>
+    <ul>
+      <li>
+        <a href="https://tools.google.com/dlpage/gaoptout" rel="noopener">
+          {t('privacy.analytics.link.optOut')}
+        </a>
+      </li>
+      <li>
+        <a href="https://policies.google.com/technologies/partner-sites" rel="noopener">
+          {t('privacy.analytics.link.partner')}
+        </a>
+      </li>
+    </ul>
+
+    {/*
+      애드센스가 요구하는 고지 세 가지: 제3자(구글 포함)의 쿠키 사용, 이전 방문 기록
+      기반 광고, 사용자가 끌 수 있는 경로. 링크는 문장 안에 끼우지 않고 목록으로 뺐다 —
+      문장에 끼우면 언어마다 어순이 달라 조각을 이어 붙이게 되고, 세 언어가 어긋난다.
+    */}
     <h3>{t('privacy.ads.h')}</h3>
     <p>{t('privacy.ads.p1')}</p>
-    <p>
-      {t('privacy.ads.p2')}{' '}
-      <a href="https://adssettings.google.com/" rel="noopener">
-        {t('privacy.ads.optOut')}
-      </a>.
-    </p>
+    <p>{t('privacy.ads.p2')}</p>
+    <p>{t('privacy.ads.p3')}</p>
+    <ul>
+      <li>
+        <a href="https://www.google.com/settings/ads" rel="noopener">
+          {t('privacy.ads.link.optOut')}
+        </a>
+      </li>
+      <li>
+        <a href="https://www.aboutads.info/choices/" rel="noopener">
+          {t('privacy.ads.link.aboutAds')}
+        </a>
+      </li>
+      <li>
+        <a href="https://policies.google.com/technologies/ads" rel="noopener">
+          {t('privacy.ads.link.policy')}
+        </a>
+      </li>
+    </ul>
 
     <h3>{t('privacy.fonts.h')}</h3>
     <p>{t('privacy.fonts.p')}</p>

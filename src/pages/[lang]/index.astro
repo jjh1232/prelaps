@@ -1,14 +1,17 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { byCategory } from '../../data/tools';
+import { ARTICLES, FAQ_COUNT, SYMPTOMS } from '../../data/articles';
 import type { Locale } from '../../i18n/config';
-import { localeStaticPaths, useTranslations, type TranslationKey } from '../../i18n/utils';
+import { localeStaticPaths, localizePath, useTranslations, type TranslationKey } from '../../i18n/utils';
 
 // 이 한 줄이 /ko, /en, /ja 세 장의 정적 HTML 을 만든다.
 export const getStaticPaths = localeStaticPaths;
 
 const { lang } = Astro.props as { lang: Locale };
 const t = useTranslations(lang);
+
+const faq = Array.from({ length: FAQ_COUNT }, (_, i) => i + 1);
 ---
 
 <Base
@@ -37,4 +40,67 @@ const t = useTranslations(lang);
       </>
     ))
   }
+
+  {/*
+    증상으로 찾기. 위 카드가 「무엇이 있는지」라면 여기는 「내 경우에 무엇을 쓰나」다.
+    방문자는 도구 이름을 모르고 자기 증상만 안다.
+  */}
+  <section class="home-block">
+    <h2>{t('home.find.h')}</h2>
+    <p class="lede">{t('home.find.lede')}</p>
+
+    <ul class="symptom-list">
+      {
+        SYMPTOMS.map((s) => (
+          <li>
+            <p class="symptom-q">{t(s.qKey)}</p>
+            <p class="symptom-a">{t(s.aKey)}</p>
+            <a class="symptom-go" href={s.href(lang)}>
+              {t(s.linkKey)}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  {/*
+    글로 나가는 통로. 허브에 이 구획이 생기기 전에는 홈에서 글로 가는 링크가
+    한 줄도 없었다 — 글은 도구 안에서만 보였다.
+  */}
+  <section class="home-block">
+    <h2>{t('home.read.h')}</h2>
+    <p class="lede">
+      {t('home.read.lede')}{' '}
+      <a href={localizePath(lang, '/guides')}>{t('home.read.all')}</a>
+    </p>
+
+    <ul class="card-list">
+      {
+        ARTICLES.map((a) => (
+          <li>
+            <a class="card" href={a.href(lang)}>
+              <h3>{t(a.titleKey)}</h3>
+              <p>{t(a.descKey)}</p>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <section class="home-block">
+    <h2>{t('home.faq.h')}</h2>
+
+    <dl class="faq">
+      {
+        faq.map((n) => (
+          <>
+            <dt>{t(`home.faq.q${n}` as TranslationKey)}</dt>
+            <dd>{t(`home.faq.a${n}` as TranslationKey)}</dd>
+          </>
+        ))
+      }
+    </dl>
+  </section>
 </Base>

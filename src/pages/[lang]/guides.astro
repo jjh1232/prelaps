@@ -1,0 +1,57 @@
+---
+import Base from '../../layouts/Base.astro';
+import { articlesByTool } from '../../data/articles';
+import type { Locale } from '../../i18n/config';
+import { localeStaticPaths, useTranslations, type TranslationKey } from '../../i18n/utils';
+
+// 글은 각 도구 저장소 안에 있고 여기서 만들지 않는다. 이 페이지는 목록이다.
+//
+// 도구 안에만 두면 도구를 쓰러 온 사람은 화면 아래까지 안 내려간다 —
+// 읽을 거리가 존재한다는 것 자체가 안 보인다. 머리 메뉴에 자리를 하나 주고
+// 전부 모아 두는 쪽이 실제로 읽힌다.
+//
+// 글을 옮기지는 않는다. 주소가 이미 색인·사이트맵에 올라가 있어서,
+// 옮기면 그 주소들이 전부 리다이렉트가 된다 (헌법 §5).
+export const getStaticPaths = localeStaticPaths;
+
+const { lang } = Astro.props as { lang: Locale };
+const t = useTranslations(lang);
+
+const groups = articlesByTool();
+const total = groups.reduce((n, g) => n + g.articles.length, 0);
+---
+
+<Base
+  lang={lang}
+  path="/guides"
+  title={t('guides.title')}
+  description={t('guides.description')}
+>
+  <h1>{t('guides.heading')}</h1>
+  <p class="lede">{t('guides.lede')}</p>
+  <p class="lede">{t('guides.why')}</p>
+
+  {
+    groups.map((group) => (
+      <section class="guide-group">
+        <h2>{t(group.tool.nameKey)}</h2>
+        <p class="guide-tool">
+          <a href={group.tool.href(lang)}>{t('guides.openTool')}</a>
+        </p>
+
+        <ul class="card-list">
+          {group.articles.map((a) => (
+            <li>
+              <a class="card" href={a.href(lang)}>
+                <h3>{t(a.titleKey)}</h3>
+                <p>{t(a.descKey)}</p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))
+  }
+
+  <p class="guide-count">{t('guides.count').replace('{n}', String(total))}</p>
+</Base>

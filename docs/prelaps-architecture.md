@@ -223,8 +223,35 @@ npx wrangler pages deployment list --project-name prelaps-home
 /mojibake/en         -> 업스트림 308 Location: /en/  -> 허브의 영어 페이지로 이탈
 ```
 
-mojibake 의 내부 링크가 `href="index.html"` 이므로 홈 버튼 한 번에 바로 터진다.
 `withPrefixedLocation()` 이 Location 에 접두사를 다시 붙여 막는다.
+
+이 층은 mojibake 가 내부 링크에서 `.html` 을 뗀 뒤(2026-09-21)에도 계속 필요하다 —
+구 주소(`.html`)가 색인과 외부 링크에 남아 있고, 끝 슬래시 정규화도 같은 경로를 탄다.
+
+### 내부 링크의 형태는 canonical 과 같아야 한다 (2026-09-21)
+
+**링크 · canonical · 사이트맵 세 형태는 한 벌이다.** 하나만 달라도 구글은
+「리디렉션이 포함된 페이지」로 센다. 방문자에게는 아무 표시가 없고 링크 검사도
+통과하므로, 규칙으로 못 박아두지 않으면 눈으로도 테스트로도 안 잡힌다.
+
+mojibake 가 실제로 이렇게 됐다. 자산 층(`html_handling`)이 `.html` 을 떼고
+서빙하는데 내부 링크만 `.html` 로 남아 있었다.
+
+```
+canonical   /mojibake/excel-csv        ← 사이트맵도 이 형태
+내부 링크   /mojibake/excel-csv.html   ← 307 을 한 번 타고 위로 간다
+```
+
+실측 — 사이트 전체 내부 링크 907개 중 **129개**가 `.html` 을 가리켰다.
+홈 버튼(`href="index.html"`)만 16곳인데 정식 주소로 가는 링크는 3곳이었고,
+`content/about` 3장은 정식 주소로 오는 내부 링크가 **0** 이라 사실상 고아였다.
+
+`file://` 더블클릭으로 열리게 하려고 `.html` 을 남긴 것이었는데,
+**그 편의보다 색인이 비쌌다.** 배포된 도구에서는 `npm run serve` 로 충분하다.
+(breakkorean `docs/기획서.md` 2026-09-21 갱신 상자에 전말)
+
+새 도구는 Astro 라 이 문제가 안 생긴다 — `trailingSlash` 와 `build.format` 이
+링크와 canonical 을 같이 결정한다. **순수 HTML 도구를 손볼 때만 조심하면 된다.**
 
 ### mojibake 는 Pages 가 아니라 Worker 다 — ROUTES 의 프록시는 곧 죽는다
 
@@ -272,10 +299,37 @@ status 200 으로** 돌려준다(SPA 폴백). 허브에 404 페이지가 없던 
 |---|---|---|
 | prelaps-home | Astro | 첫 Astro 프로젝트. 페이지 4~5개로 부담 적음 |
 | prelaps-mojibake | 순수 HTML 유지 | 이미 동작 중. 나중에 여유 되면 이전 |
-| 이후 도구 | Astro | |
+| 이후 도구 | Astro | **2026-09-15 확정.** doceditor(hwp·一太郎 문서 편집기)부터 |
+| race · imagesquish · vfile | 순수 HTML (prelaps-tool-template) | 이미 색인됨. 옮기지 않는다 |
 | 게임 | Astro + React island | 캔버스/게임루프는 `client:load` 컴포넌트로. 소개 페이지는 정적 |
 
 프로젝트가 독립적이라 스택 혼용에 문제 없음.
+
+### 새 도구는 Astro 로 — 2026-09-15
+
+`prelaps-tool-template`(빌드 없는 순수 HTML)은 mojibake → race → imageSquish 를 거치며 굳었지만,
+**언어판마다 `<head>`·헤더·푸터·hreflang 을 HTML 째 복사**하는 구조다. 페이지가 언어 × 형식 × 가이드로
+늘어나는 도구에서는 한 곳을 고칠 때 전부를 고쳐야 하고, 빠뜨린 것은 화면에 표시가 없다.
+그래서 **새 도구는 Astro** 로 만든다. 템플릿은 기존 도구 유지보수용으로만 남긴다.
+
+```
+레이아웃 한 벌      head · 헤더 · 언어 전환 · 푸터 · canonical · hreflang 자동 계산
+[lang] 동적 라우트   getStaticPaths 목록 = 만들어지는 페이지
+locales/*.json      언어마다 다른 글자만. 키 누락은 npm run check 에서 타입 에러
+빌드 결과 dist/     여전히 순수 정적 HTML — 검색 이점은 그대로
+```
+
+**새 도구는 끝 슬래시를 쓰지 않는다** (`/doceditor/ko`, 허브 `/ko` 와 같은 모양). 세 설정이 세트다.
+
+```
+astro.config   base: '/<도구>'  ·  trailingSlash: 'never'  ·  build.format: 'file'
+wrangler       assets.directory: './dist'  ·  html_handling: 'drop-trailing-slash'
+routes         prelaps.com/<도구>  ·  prelaps.com/<도구>/*   (라우터의 끝 슬래시 301 불필요)
+```
+
+기존 도구의 끝 슬래시(`/mojibake/ko/`)는 **폴더 + index.html + 상대 경로** 구조가 강제한 것이다
+(`/mojibake/ko` 에서 `../styles.css` 는 도메인 루트로 풀린다). Astro 는 자산 경로에 `base` 를 붙인
+절대 경로를 만들어서 이 제약이 없다. 기존 도구는 이미 색인된 주소라 바꾸지 않는다.
 
 ### Astro 초기 설정
 
@@ -447,7 +501,10 @@ canonical 주소를 리다이렉트로 만들어야 하는데, 그건 하면 안
 ### 새 저장소에서
 
 ```
-□ 저장소 생성. 스택은 자유 — 도구마다 독립이다
+□ 저장소 생성. **스택은 Astro** (2026-09-15, §4 「새 도구는 Astro 로」)
+    · 끝 슬래시 없음: base '/<도구>' · trailingSlash 'never' · build.format 'file'
+    · 아래 항목 중 「상대 경로」 「/<도구>/<언어>/」 는 순수 HTML 도구 기준이다.
+      Astro 도구는 /<도구>/<언어> (슬래시 없음), 링크는 base 를 붙인 절대 경로로 읽는다
 □ wrangler.jsonc
     main    ./src/index.js
     routes  prelaps.com/<도구>/*   (zone_name: prelaps.com)
@@ -469,6 +526,7 @@ canonical 주소를 리다이렉트로 만들어야 하는데, 그건 하면 안
 □ canonical · hreflang · og:url · sitemap 을 https://prelaps.com/<도구>/... 절대 URL 로
 □ x-default 는 영어  (도메인 공통 규칙. §5 참고)
 □ 내부 링크는 전부 상대 경로. 절대 경로(/style.css)는 루트로 풀려 깨진다
+□ 내부 링크의 형태 = canonical 의 형태. 링크만 .html 이면 전부 리다이렉트를 가리킨다
 □ 푸터에서 허브 정책으로 앵커 링크  →  /{lang}/privacy#<도구>
 □ 링크·hreflang 전수 검사 스크립트  (breakkorean/test/links.js 참고)
 □ CLAUDE.md + docs/배포.md
@@ -625,3 +683,76 @@ mojibake 의 벤치마크에서 **키릴 구간이 유독 강하다.** 표준 �
 - 애널리틱스 도구
 - 애드센스 퍼블리셔 ID (신청 후 발급)
 - Pages 프로젝트 실제 명명 규칙 (위 이름은 임시)
+
+---
+
+## 12. 도구의 얼굴 — 2026-09-16
+
+**새 도구는 `idphoto` 의 `src/styles/global.css` 를 복사해서 시작한다.** 색을 새로
+고르지 말 것. 도구마다 얼굴이 다르면 도메인 단위로 쌓여야 할 신뢰가 갈린다.
+(§2 「커스텀 도메인을 붙이지 않는다」 와 같은 이유다 — 한 사이트로 보여야 한다.)
+
+### 어떻게 정했나
+
+널리 쓰이는 이미지 도구 사이트(iloveimg 류)의 CSS 를 실제로 내려받아 값을 세었다.
+디자인을 베낀 것이 아니라 **왜 깔끔해 보이는지**를 읽었다.
+
+```
+흰색 124회 · 흐린 글자 #707078 49회 · 진한 글자 #161616 37회
+작업 영역 회색 #f5f5fa 22회 · 곡률 8px(25) 4px(7) 12px(5) · 그림자 대부분 none
+```
+
+세 가지가 나왔다. 셋 다 지킨다.
+
+1. **회색에 파란기를 섞는다.** `#f5f5fa` · `#e3e3ec` · `#707078` 전부 파랑 채널이
+   제일 높다. 순회색은 탁해 보이고, 반 발짝 차가운 회색은 「깨끗한 도구」로 읽힌다.
+   **이게 제일 큰 차이인데 눈으로는 그냥 회색으로 보인다** — 그래서 적어 둔다.
+2. **글자를 순검정으로 쓰지 않는다.** `#161616`. `#000` 은 흰 바탕에서 너무 때린다.
+3. **그림자를 거의 안 쓴다.** 띄우는 대신 바탕색 차이와 실선으로 나눈다.
+   떠 있는 것이 많을수록 어느 것이 중요한지 알 수 없어진다.
+
+### 값
+
+| | 라이트 | 다크 |
+|---|---|---|
+| `--bg` 종이 | `#ffffff` | `#16161b` |
+| `--bg-soft` 작업 영역 | `#f5f5fa` | `#1d1d24` |
+| `--fg` 글자 | `#161616` | `#ececf2` |
+| `--fg-muted` | `#707078` | `#9a9aa6` |
+| `--border` | `#e3e3ec` | `#2d2d37` |
+| `--rule` 안쪽 구분선 | `#ebebf4` | `#26262e` |
+| `--accent` **남색** | `#2a4a86` | `#7ba7e8` |
+| `--accent-soft` | `#eaf0f9` | `#1b2436` |
+| `--field` 입력칸 | `#ffffff` | `#121217` |
+
+**강조색은 남색이다.** 위의 회색들이 파란기를 띠고 있어 한 식구로 앉는다.
+초록(`#2f6f4f`)을 쓰다가 바꿨다 — 차가운 회색 위에서 초록만 다른 계열이라 겉돌았다.
+흰 글자 대비 **8.7:1** 로 본문 기준(4.5)을 넘으므로 버튼 글자에 그대로 쓴다.
+
+**곡률은 하나의 값으로 전부에 두르지 않는다.** 판 12px · 버튼과 칩 8px · 입력칸 4px.
+전부 같은 값이면 스티커를 붙인 화면이 된다.
+
+### 폰트
+
+**한글 웹폰트를 싣지 않는다.** Pretendard 급은 서브셋해도 수백 KB 라 첫 화면이 무너진다.
+본문은 시스템 스택 그대로 두고, **숫자에만 등폭(`--mono`)** 을 물린다.
+숫자는 라틴 문자라 시스템 글꼴로 공짜고, `px`·`mm`·`dpi`·`KB` 가 도구의 주인공이라
+그것만으로 성격이 생긴다. 값이 바뀌어도 칸이 안 흔들리는 것은 덤이다.
+
+### 아직 안 맞춘 곳
+
+이 얼굴은 지금 **`idphoto` 에만** 적용돼 있다. 나머지는 예전 색(초록)이다.
+
+```
+Main/prelaps-home   src/styles/global.css     391줄, 토큰 세트가 더 작다
+doceditor           src/styles/global.css     idphoto 와 같은 파일에서 갈라짐 — 제일 쉽다
+imageSquish         site/styles.css           토큰 이름이 같다
+vfile               site/styles.css           --ink/--paper/--rule 등 이름 체계가 다르다
+breakkorean         site/styles.css           --line/--page/--ok 등 완전히 다르다
+```
+
+**옮긴다면 한 번에 몰아서 한다.** 중간에 멈추면 도구마다 색이 갈린 채로 남고,
+그 상태가 제일 나쁘다. 각 도구를 따로 빌드·배포해야 하는 것도 같이 계산할 것
+(§3 「배포는 수동이다」).
+
+---

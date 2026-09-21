@@ -40,6 +40,22 @@ export const TOOLS: Tool[] = [
     href: (lang) => `/imagesquish/${lang}/`,
   },
   {
+    id: 'doceditor',
+    category: 'tool',
+    nameKey: 'tools.doceditor.name',
+    descKey: 'tools.doceditor.desc',
+    // Astro 로 만든 첫 도구라 **끝 슬래시가 없다** (/doceditor/ko). 다른 도구는 /<도구>/<언어>/ 다 (헌법 §4).
+    href: (lang) => `/doceditor/${lang}`,
+  },
+  {
+    id: 'idphoto',
+    category: 'tool',
+    nameKey: 'tools.idphoto.name',
+    descKey: 'tools.idphoto.desc',
+    // doceditor 와 같은 Astro 도구라 끝 슬래시가 없다 (/idphoto/ko).
+    href: (lang) => `/idphoto/${lang}`,
+  },
+  {
     id: 'race',
     category: 'roulette',
     nameKey: 'tools.race.name',
