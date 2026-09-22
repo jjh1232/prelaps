@@ -6,7 +6,7 @@
   --fg: #1b1b1a;
   --fg-muted: #6b6b66;
   --border: #e4e4df;
-  --accent: #2f6f4f;
+  --accent: #2a4a86;
   --radius: 10px;
   --maxw: 46rem;
 }
@@ -18,7 +18,7 @@
     --fg: #e9e9e6;
     --fg-muted: #9a9a94;
     --border: #2c2f34;
-    --accent: #7fc0a0;
+    --accent: #7ba7e8;
   }
 }
 
