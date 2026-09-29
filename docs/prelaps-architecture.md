@@ -13,7 +13,7 @@
   - 순수 HTML, 빌드 없음
   - 다국어 이미 구현됨 (URL 분리, 언어별 HTML 파일)
 - 목표: 도구 / 게임 / 블로그를 장기적으로 계속 추가. 애드센스 수익화.
-- 작성자 기술 배경: Node, React 경험 있음. Astro 미경험.
+- 작성자 기술 배경: Node, React, Next.js 경험 있음. Astro 는 허브·doceditor 에서 처음 씀.
 
 ---
 
@@ -47,7 +47,7 @@
 Cloudflare Pages (각각 독립 레포 / 독립 배포 / 스택 자유)
 ├── prelaps-home       → 허브, privacy, about, contact   [Astro]
 ├── prelaps-mojibake   → 깨진 한글 복구기                [순수 HTML, 현행 유지]
-├── prelaps-game       → (예정)                          [Astro + React island]
+├── prelaps-game       → (예정)                          [Next.js export]
 └── prelaps-blog       → (예정)                          [Astro]
 
 Cloudflare Worker: prelaps-router
@@ -250,8 +250,8 @@ canonical   /mojibake/excel-csv        ← 사이트맵도 이 형태
 **그 편의보다 색인이 비쌌다.** 배포된 도구에서는 `npm run serve` 로 충분하다.
 (breakkorean `docs/기획서.md` 2026-09-21 갱신 상자에 전말)
 
-새 도구는 Astro 라 이 문제가 안 생긴다 — `trailingSlash` 와 `build.format` 이
-링크와 canonical 을 같이 결정한다. **순수 HTML 도구를 손볼 때만 조심하면 된다.**
+Astro·Next.js 도구는 이 문제가 안 생긴다 — 끝 슬래시 설정과 출력 형식이
+링크와 canonical 을 같이 결정한다(§4). **순수 HTML 도구를 손볼 때만 조심하면 된다.**
 
 ### mojibake 는 Pages 가 아니라 Worker 다 — ROUTES 의 프록시는 곧 죽는다
 
@@ -284,7 +284,11 @@ status 200 으로** 돌려준다(SPA 폴백). 허브에 404 페이지가 없던 
 
 ---
 
-## 4. 스택 결정: Astro
+## 4. 스택 결정: 정적 HTML 을 만드는 빌드 (허브·doceditor·idphoto 는 Astro, 새 도구는 Next.js)
+
+> **[2026-09-29] 새 도구는 Next.js 정적 내보내기로 만든다.** 아래 「새 도구는 Next.js 로」 참고.
+> 「왜 Astro 인가」의 네 가지는 **Next.js `output: 'export'` 에도 그대로 성립한다** —
+> 요점은 Astro 라는 이름이 아니라 「빌드 시점에 완성된 정적 HTML」 이다.
 
 ### 왜 Astro 인가
 
@@ -299,13 +303,14 @@ status 200 으로** 돌려준다(SPA 폴백). 허브에 404 페이지가 없던 
 |---|---|---|
 | prelaps-home | Astro | 첫 Astro 프로젝트. 페이지 4~5개로 부담 적음 |
 | prelaps-mojibake | 순수 HTML 유지 | 이미 동작 중. 나중에 여유 되면 이전 |
-| 이후 도구 | Astro | **2026-09-15 확정.** doceditor(hwp·一太郎 문서 편집기)부터 |
+| doceditor · idphoto | Astro | 2026-09-15 ~ 09-28 의 「새 도구는 Astro」 시기에 만든 도구. 옮기지 않는다 |
+| 이후 도구 | **Next.js (`output: 'export'`)** | **2026-09-29 확정.** `nextjs-template` 로 만든다 |
 | race · imagesquish · vfile | 순수 HTML (prelaps-tool-template) | 이미 색인됨. 옮기지 않는다 |
-| 게임 | Astro + React island | 캔버스/게임루프는 `client:load` 컴포넌트로. 소개 페이지는 정적 |
+| 게임 | Next.js + 클라이언트 컴포넌트 | 캔버스/게임루프는 `'use client'` 컴포넌트로. 소개 글은 서버 컴포넌트 |
 
 프로젝트가 독립적이라 스택 혼용에 문제 없음.
 
-### 새 도구는 Astro 로 — 2026-09-15
+### 새 도구는 Astro 로 — 2026-09-15 (→ 09-29 Next.js 로 바뀜. 다음 절)
 
 `prelaps-tool-template`(빌드 없는 순수 HTML)은 mojibake → race → imageSquish 를 거치며 굳었지만,
 **언어판마다 `<head>`·헤더·푸터·hreflang 을 HTML 째 복사**하는 구조다. 페이지가 언어 × 형식 × 가이드로
@@ -330,6 +335,36 @@ routes         prelaps.com/<도구>  ·  prelaps.com/<도구>/*   (라우터의 
 기존 도구의 끝 슬래시(`/mojibake/ko/`)는 **폴더 + index.html + 상대 경로** 구조가 강제한 것이다
 (`/mojibake/ko` 에서 `../styles.css` 는 도메인 루트로 풀린다). Astro 는 자산 경로에 `base` 를 붙인
 절대 경로를 만들어서 이 제약이 없다. 기존 도구는 이미 색인된 주소라 바꾸지 않는다.
+
+### 새 도구는 Next.js 로 — 2026-09-29
+
+작성자가 평소 Next.js 를 더 많이 쓴다. 도구마다 새 프레임워크 문법을 다시 떠올리는 비용이
+Astro 의 이점(페이지당 JS 가 가볍다)보다 크다고 봤다. 도구는 정적 페이지 + 브라우저 안의
+처리라 **번들 무게는 배포·색인에 영향이 없다** (샘플 기준 페이지당 JS gzip 약 170KB).
+
+**`output: 'export'` 만 쓴다.** 결과물이 `out/` 의 순수 정적 HTML 이라 배포 층(Worker + Static
+Assets, 접두사 제거, 루트 302)이 doceditor 와 **한 줄도 다르지 않다.**
+OpenNext(`@opennextjs/cloudflare`)로 SSR 을 올리는 길은 쓰지 않는다 — 서버가 필요한 도구가
+없고, Worker 번들 한도·콜드스타트만 떠안는다. `next-on-pages` 는 폐기됐다.
+
+```
+next.config    output: 'export'  ·  basePath: '/<도구>'  ·  trailingSlash: false   → out/ko.html
+wrangler       assets.directory: './out'  ·  html_handling: 'drop-trailing-slash'
+routes         prelaps.com/<도구>*   (라우터의 끝 슬래시 301 불필요 — Astro 도구와 같다)
+```
+
+Astro 와 달라서 **조용히 틀리는 곳** 세 가지. 템플릿의 `scripts/check-out.mjs` 가 빌드마다 잡는다.
+
+- **metadata 의 상대 URL 에는 basePath 가 안 붙는다.** `alternates.canonical: '/ko'` 는
+  `https://prelaps.com/ko`(허브)가 된다. canonical·hreflang·og:url·sitemap 은 전부 전체 주소로 직접 만든다.
+- **`<html lang>` 을 언어마다 박으려면 루트 레이아웃이 `app/[lang]/layout.tsx` 여야 한다.**
+  그러면 일반 `not-found` 를 둘 곳이 없어 `404.html` 이 안 생긴다(soft 404, §3).
+  `app/global-not-found.tsx` + `experimental.globalNotFound` 로 해결한다.
+- **`'use client'` 안의 글은 HTML 에 안 들어간다.** 설명 글·FAQ 는 서버 컴포넌트에 둔다.
+  Astro 의 「island 밖은 JS 0바이트」 에 해당하는 선을 사람이 지켜야 한다.
+
+그 밖에 export 에서 안 되는 것 — middleware · Server Actions · rewrites/headers · ISR ·
+기본 이미지 최적화(`images.unoptimized: true`). 루트 302 와 GA·애드센스 주입은 원래 Worker 몫이라 잃는 것이 없다.
 
 ### Astro 초기 설정
 
@@ -501,10 +536,14 @@ canonical 주소를 리다이렉트로 만들어야 하는데, 그건 하면 안
 ### 새 저장소에서
 
 ```
-□ 저장소 생성. **스택은 Astro** (2026-09-15, §4 「새 도구는 Astro 로」)
-    · 끝 슬래시 없음: base '/<도구>' · trailingSlash 'never' · build.format 'file'
-    · 아래 항목 중 「상대 경로」 「/<도구>/<언어>/」 는 순수 HTML 도구 기준이다.
-      Astro 도구는 /<도구>/<언어> (슬래시 없음), 링크는 base 를 붙인 절대 경로로 읽는다
+□ 저장소 생성. **스택은 Next.js 정적 내보내기** (2026-09-29, §4 「새 도구는 Next.js 로」)
+    · D:\SUBsite\nextjs-template 에서  node new-tool.js <도구>
+      아래 항목 대부분(wrangler · worker · 404 · 언어판 · 302 · 절대 URL)이 이미 들어 있다
+    · 끝 슬래시 없음: basePath '/<도구>' · trailingSlash false · output 'export'
+    · npm run build 가 out/ 검사까지 돈다 — 실패 0건이어야 배포한다
+    · 아래 항목 중 「상대 경로」 「/<도구>/<언어>/」 「src/index.js」 는 순수 HTML 도구 기준이다.
+      Next.js 도구는 /<도구>/<언어> (슬래시 없음), 링크는 localizePath() 로 basePath 를 붙인 절대 경로,
+      Worker 는 worker/index.js 다
 □ wrangler.jsonc
     main    ./src/index.js
     routes  prelaps.com/<도구>/*   (zone_name: prelaps.com)
@@ -640,6 +679,8 @@ canonical 주소를 리다이렉트로 만들어야 하는데, 그건 하면 안
 - Vite/React 도구 추가 시 `base: '/도구명/'` 설정 필요 (Next.js 는 `basePath`)
 - Astro 는 기본이 정적. 인터랙션 필요한 컴포넌트에만 `client:load` / `client:visible` 부여.
   각 island 는 상태를 공유하지 않으므로, 상태 공유가 필요하면 하나의 부모 컴포넌트로 묶어서 지시어를 부여할 것.
+- Next.js 도구는 `output: 'export'` 만. `'use client'` 는 도구 본체에만 붙이고 설명 글은 서버 컴포넌트에 둔다.
+  metadata 의 URL 에는 basePath 가 안 붙으므로 canonical·hreflang 은 전체 주소로 적는다 (§4)
 - 각 Pages 프로젝트에 `404.html` 이 반드시 있어야 한다. 없으면 `index.html` 이 200 으로 나가 soft 404 가 된다 (§3)
 - 새 도구가 데이터를 수집하는데 privacy 업데이트를 누락하면 애드센스 정책 위반 → 체크리스트 준수
 
@@ -688,7 +729,8 @@ mojibake 의 벤치마크에서 **키릴 구간이 유독 강하다.** 표준 �
 
 ## 12. 도구의 얼굴 — 2026-09-16
 
-**새 도구는 `idphoto` 의 `src/styles/global.css` 를 복사해서 시작한다.** 색을 새로
+**새 도구는 `idphoto` 의 `src/styles/global.css` 를 복사해서 시작한다.** `nextjs-template` 에
+이미 들어 있다(2026-09-29, idphoto 전용 `.cropper` 규칙만 뺐다). 색을 새로
 고르지 말 것. 도구마다 얼굴이 다르면 도메인 단위로 쌓여야 할 신뢰가 갈린다.
 (§2 「커스텀 도메인을 붙이지 않는다」 와 같은 이유다 — 한 사이트로 보여야 한다.)
 
@@ -741,7 +783,7 @@ mojibake 의 벤치마크에서 **키릴 구간이 유독 강하다.** 표준 �
 
 ### 아직 안 맞춘 곳
 
-이 얼굴은 지금 **`idphoto` 에만** 적용돼 있다. 나머지는 예전 색(초록)이다.
+이 얼굴은 지금 **`idphoto` 와 `nextjs-template`(= 이후 새 도구)에만** 적용돼 있다. 나머지는 예전 색이다.
 
 ```
 Main/prelaps-home   src/styles/global.css     391줄, 토큰 세트가 더 작다
