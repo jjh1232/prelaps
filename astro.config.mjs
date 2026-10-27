@@ -91,7 +91,8 @@ export default defineConfig({
         'https://prelaps.com/imageviewer/sitemap.xml',
       ],
       // 루트(/)는 /ko 로 넘기기만 하는 통로다. 색인 대상은 /ko 쪽이므로 목록에서 뺀다.
-      filter: (page) => page !== 'https://prelaps.com/',
+      // en·ja 의 읽을 거리 목록은 noindex 다 (pages/[lang]/guides.astro — 2026-10-27).
+      filter: (page) => page !== 'https://prelaps.com/' && !/\/(en|ja)\/guides\/?$/.test(page),
 
       // 각 URL 에 그 페이지가 실제로 바뀐 날을 붙인다.
       // 없으면 구글이 「발견은 했는데 언제 다시 볼지」를 스스로 정한다 —

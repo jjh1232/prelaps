@@ -23,9 +23,11 @@ interface Props {
    * 자기 자신이라고 선언하면 오히려 잘못된 신호가 된다.
    */
   noindex?: boolean;
+  /** hreflang 만 끈다(canonical 은 남는다). 짝이 되는 다른 언어판이 noindex 일 때 — guides 의 ko 판 */
+  noAlternates?: boolean;
 }
 
-const { lang, path = '', title, description, noindex = false } = Astro.props;
+const { lang, path = '', title, description, noindex = false, noAlternates = false } = Astro.props;
 
 /**
  * 애드센스 퍼블리셔 ID (`ca-pub-…`). **발급 전에는 빈 문자열로 둔다** —
@@ -42,7 +44,7 @@ const ADSENSE_ID = 'ca-pub-3724742785414572';
 
 const t = useTranslations(lang);
 const canonical = absoluteUrl(localizePath(lang, path)); // canonical 은 항상 자기 자신
-const alternates = noindex ? [] : hreflangLinks(path);
+const alternates = noindex || noAlternates ? [] : hreflangLinks(path);
 const year = new Date().getFullYear();
 
 const nav = [

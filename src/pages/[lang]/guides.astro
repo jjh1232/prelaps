@@ -21,9 +21,13 @@ const groups = articlesByTool();
 const total = groups.reduce((n, g) => n + g.articles.length, 0);
 ---
 
+<!-- 2026-10-27: 도구들의 en·ja 글을 noindex 로 돌려서(유입 없음), 그 목록인 en·ja 판도 색인하지 않는다.
+     ko 판만 색인하고, 짝이 없으니 hreflang 도 뺀다. 사이트맵 filter(astro.config) 도 같이. -->
 <Base
   lang={lang}
   path="/guides"
+  noindex={lang !== 'ko'}
+  noAlternates
   title={t('guides.title')}
   description={t('guides.description')}
 >
