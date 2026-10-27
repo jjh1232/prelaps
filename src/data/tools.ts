@@ -56,6 +56,14 @@ export const TOOLS: Tool[] = [
     href: (lang) => `/idphoto/${lang}`,
   },
   {
+    id: 'imageviewer',
+    category: 'tool',
+    nameKey: 'tools.imageviewer.name',
+    descKey: 'tools.imageviewer.desc',
+    // Next.js 도구라 끝 슬래시가 없다 (/imageviewer/ko). 뷰어 본체는 /imageviewer/editor (언어 없음, noindex).
+    href: (lang) => `/imageviewer/${lang}`,
+  },
+  {
     id: 'race',
     category: 'roulette',
     nameKey: 'tools.race.name',

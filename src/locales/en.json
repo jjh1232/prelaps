@@ -198,5 +198,8 @@
   "privacy.tool.doceditor.note": "Documents you open and the photos or signatures you add are processed inside the browser and never sent to a server. Saved files are downloaded straight to your device.",
   "tools.idphoto.name": "ID Photo Size Fitter",
   "tools.idphoto.desc": "Crop a photo you already have to passport or résumé dimensions, set the print resolution, and fit a file size limit. Covers Korean, U.S. and Japanese sizes.",
-  "privacy.tool.idphoto.note": "The photo you open is handled inside your browser and is never sent to a server. The cropped result is downloaded straight from this device."
+  "privacy.tool.idphoto.note": "The photo you open is handled inside your browser and is never sent to a server. The cropped result is downloaded straight from this device.",
+  "tools.imageviewer.name": "Comic & Webtoon Viewer",
+  "tools.imageviewer.desc": "Read comics, webtoons and scans split into many files one page at a time, as two-page spreads, or as one vertical strip. Open a whole numbered series of image URLs at once.",
+  "privacy.tool.imageviewer.note": "Files you open are handled inside your browser and are never sent to a server. Images loaded from a URL are fetched by your browser directly from that site, not through prelaps servers (that site sees an ordinary visit). Share links and shortcuts contain the image URL you loaded, so opening one may record it in visit statistics (Google Analytics) as part of the page address."
 }
