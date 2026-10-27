@@ -87,6 +87,8 @@ export default defineConfig({
         'https://prelaps.com/vfile/sitemap.xml',
         'https://prelaps.com/doceditor/sitemap-0.xml',
         'https://prelaps.com/idphoto/sitemap-0.xml',
+        // Next.js 도구는 템플릿 app/sitemap.ts 가 sitemap.xml 하나를 만든다 (인덱스가 아님).
+        'https://prelaps.com/imageviewer/sitemap.xml',
       ],
       // 루트(/)는 /ko 로 넘기기만 하는 통로다. 색인 대상은 /ko 쪽이므로 목록에서 뺀다.
       filter: (page) => page !== 'https://prelaps.com/',
