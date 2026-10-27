@@ -598,6 +598,9 @@ canonical 주소를 리다이렉트로 만들어야 하는데, 그건 하면 안
 
 ```
 □ public/robots.txt 에 한 줄       Sitemap: https://prelaps.com/<도구>/sitemap.xml
+□ astro.config.mjs 의 sitemap customSitemaps 에 한 줄  ← robots.txt 만으로는 구글이 늦게 읽는다
+    Next.js 도구 sitemap.xml · Astro 도구 sitemap-0.xml (인덱스 안에 인덱스를 넣으면 안 된다)
+    빠뜨리면 npm run indexnow 도 그 도구를 안 보낸다 — 인덱스를 따라 모으기 때문 (imageviewer 2026-10-27)
 □ src/data/tools.ts 에 항목 하나 + locales/*.json 에 이름·설명 (3언어)
 □ {lang}/privacy 의 "3. 서비스별 안내" 에 블록 추가 (id=<도구>)
     수집 항목 / 목적 / 보관 기간 / 제3자 제공 — 없으면 "없음"
