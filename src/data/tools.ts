@@ -64,6 +64,14 @@ export const TOOLS: Tool[] = [
     href: (lang) => `/imageviewer/${lang}`,
   },
   {
+    id: 'imageblur',
+    category: 'tool',
+    nameKey: 'tools.imageblur.name',
+    descKey: 'tools.imageblur.desc',
+    // Next.js 도구 (/imageblur/ko). 슬러그는 처음에 mask 였다가 배포 직전 imageblur 로 정했다.
+    href: (lang) => `/imageblur/${lang}`,
+  },
+  {
     id: 'race',
     category: 'roulette',
     nameKey: 'tools.race.name',

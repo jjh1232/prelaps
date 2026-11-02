@@ -201,5 +201,8 @@
   "privacy.tool.idphoto.note": "The photo you open is handled inside your browser and is never sent to a server. The cropped result is downloaded straight from this device.",
   "tools.imageviewer.name": "Comic & Webtoon Viewer",
   "tools.imageviewer.desc": "Read comics, webtoons and scans split into many files one page at a time, as two-page spreads, or as one vertical strip. Open a whole numbered series of image URLs at once.",
-  "privacy.tool.imageviewer.note": "Files you open are handled inside your browser and are never sent to a server. Images loaded from a URL are fetched by your browser directly from that site, not through prelaps servers (that site sees an ordinary visit). Share links and shortcuts contain the image URL you loaded, so opening one may record it in visit statistics (Google Analytics) as part of the page address."
+  "privacy.tool.imageviewer.note": "Files you open are handled inside your browser and are never sent to a server. Images loaded from a URL are fetched by your browser directly from that site, not through prelaps servers (that site sees an ordinary visit). Share links and shortcuts contain the image URL you loaded, so opening one may record it in visit statistics (Google Analytics) as part of the page address.",
+  "tools.imageblur.name": "Redact IDs & Documents",
+  "tools.imageblur.desc": "Black out, pixelate or blur ID numbers, addresses and faces in photos and PDFs, then save a new file.",
+  "privacy.tool.imageblur.note": "Photos and PDFs you open are processed only inside your browser and are never sent to a server. The redacted file is downloaded straight to this device."
 }
