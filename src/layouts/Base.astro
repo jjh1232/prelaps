@@ -25,9 +25,14 @@ interface Props {
   noindex?: boolean;
   /** hreflang 만 끈다(canonical 은 남는다). 짝이 되는 다른 언어판이 noindex 일 때 — guides 의 ko 판 */
   noAlternates?: boolean;
+  /**
+   * 애드센스를 싣지 않는다(GA 는 싣는다). 404 처럼 콘텐츠가 없는 화면 — 게시자 정책
+   * 「인벤토리 가치」. noindex 와 묶지 않은 건 guides 의 en·ja 판처럼 noindex 여도 콘텐츠는 있어서다.
+   */
+  noAds?: boolean;
 }
 
-const { lang, path = '', title, description, noindex = false, noAlternates = false } = Astro.props;
+const { lang, path = '', title, description, noindex = false, noAlternates = false, noAds = false } = Astro.props;
 
 /**
  * 애드센스 퍼블리셔 ID (`ca-pub-…`). **발급 전에는 빈 문자열로 둔다** —
@@ -129,7 +134,7 @@ const footerNav = [
       빼면 Astro 가 번들로 끌어가 실행 시점이 바뀐다.
     */}
     {
-      ADSENSE_ID ? (
+      ADSENSE_ID && !noAds ? (
         <script
           is:inline
           async
