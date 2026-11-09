@@ -1,17 +1,15 @@
 ---
 import Base from '../../layouts/Base.astro';
+import ToolIcon from '../../components/ToolIcon.astro';
 import { byCategory } from '../../data/tools';
-import { ARTICLES, FAQ_COUNT, SYMPTOMS } from '../../data/articles';
 import type { Locale } from '../../i18n/config';
-import { localeStaticPaths, localizePath, useTranslations, type TranslationKey } from '../../i18n/utils';
+import { localeStaticPaths, useTranslations, type TranslationKey } from '../../i18n/utils';
 
 // 이 한 줄이 /ko, /en, /ja 세 장의 정적 HTML 을 만든다.
 export const getStaticPaths = localeStaticPaths;
 
 const { lang } = Astro.props as { lang: Locale };
 const t = useTranslations(lang);
-
-const faq = Array.from({ length: FAQ_COUNT }, (_, i) => i + 1);
 ---
 
 <Base
@@ -20,19 +18,24 @@ const faq = Array.from({ length: FAQ_COUNT }, (_, i) => i + 1);
   title={t('home.title')}
   description={t('home.description')}
 >
-  <h1>{t('home.heading')}</h1>
-  <p class="lede">{t('home.intro')}</p>
+  {/* 제목은 화면에서 뺐다(2026-11-09 사용자 결정). 스크린리더와 검색엔진이 읽을 h1 하나는 남긴다. */}
+  <h1 class="visually-hidden">{t('home.heading')}</h1>
 
+  {/*
+    홈은 아이콘 + 이름 타일뿐이다(2026-11-09 사용자 결정, tools.pdf24.org 의 짜임).
+    설명 줄·증상으로 찾기·읽을 거리 카드·FAQ 를 뺐다 — 쓰는 사람은 읽지 않는다.
+    설명은 title 툴팁으로만 남긴다. 글은 상단 메뉴의 /guides 로 간다. 되살릴 때는 git 이력에서.
+  */}
   {
     byCategory().map((group) => (
       <>
         <h2 class="section-title">{t(`home.cat.${group.category}` as TranslationKey)}</h2>
-        <ul class="card-list">
+        <ul class="tile-grid">
           {group.tools.map((tool) => (
             <li>
-              <a class="card" href={tool.href(lang)}>
-                <h3>{t(tool.nameKey)}</h3>
-                <p>{t(tool.descKey)}</p>
+              <a class="tile" data-tool={tool.id} href={tool.href(lang)} title={t(tool.descKey)}>
+                <span class="tile-icon"><ToolIcon id={tool.id} /></span>
+                <span class="tile-name">{t(tool.nameKey)}</span>
               </a>
             </li>
           ))}
@@ -41,66 +44,9 @@ const faq = Array.from({ length: FAQ_COUNT }, (_, i) => i + 1);
     ))
   }
 
-  {/*
-    증상으로 찾기. 위 카드가 「무엇이 있는지」라면 여기는 「내 경우에 무엇을 쓰나」다.
-    방문자는 도구 이름을 모르고 자기 증상만 안다.
-  */}
-  <section class="home-block">
-    <h2>{t('home.find.h')}</h2>
-    <p class="lede">{t('home.find.lede')}</p>
-
-    <ul class="symptom-list">
-      {
-        SYMPTOMS.map((s) => (
-          <li>
-            <p class="symptom-q">{t(s.qKey)}</p>
-            <p class="symptom-a">{t(s.aKey)}</p>
-            <a class="symptom-go" href={s.href(lang)}>
-              {t(s.linkKey)}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
-  {/*
-    글로 나가는 통로. 허브에 이 구획이 생기기 전에는 홈에서 글로 가는 링크가
-    한 줄도 없었다 — 글은 도구 안에서만 보였다.
-  */}
-  <section class="home-block">
-    <h2>{t('home.read.h')}</h2>
-    <p class="lede">
-      {t('home.read.lede')}{' '}
-      <a href={localizePath(lang, '/guides')}>{t('home.read.all')}</a>
-    </p>
-
-    <ul class="card-list">
-      {
-        ARTICLES.map((a) => (
-          <li>
-            <a class="card" href={a.href(lang)}>
-              <h3>{t(a.titleKey)}</h3>
-              <p>{t(a.descKey)}</p>
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </section>
-
-  <section class="home-block">
-    <h2>{t('home.faq.h')}</h2>
-
-    <dl class="faq">
-      {
-        faq.map((n) => (
-          <>
-            <dt>{t(`home.faq.q${n}` as TranslationKey)}</dt>
-            <dd>{t(`home.faq.a${n}` as TranslationKey)}</dd>
-          </>
-        ))
-      }
-    </dl>
-  </section>
+  <ul class="home-facts">
+    <li>{t('home.facts.local')}</li>
+    <li>{t('home.facts.signup')}</li>
+    <li>{t('home.facts.free')}</li>
+  </ul>
 </Base>
